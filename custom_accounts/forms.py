@@ -30,7 +30,9 @@ class SignupForm(forms.Form):
             user.is_active = True
         elif self.cleaned_data['user_type'] == 'admin':
             user.is_staff = True
+            user.is_active = False
         else:
             user.is_staff = True
             user.is_superuser = True
+            user.is_active = False
         user.save()

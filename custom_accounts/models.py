@@ -30,11 +30,6 @@ LMS_MODULES_CHOICES = [
 ]
 
 class CustomUser(AbstractUser):
-    is_active = models.BooleanField(
-      default=False,
-      verbose_name="Active",
-      help_text=('Designates whether this user should be treated as active. '
-                 'Unselect this instead of deleting accounts.'))
     slack_display_name = models.CharField(
         max_length=80,
         blank=False,
