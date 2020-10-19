@@ -29,7 +29,9 @@ LMS_MODULES_CHOICES = [
     ('staff', 'Staff'),
 ]
 
+
 class CustomUser(AbstractUser):
+    """ Custom user model extending the basic AbstractUser model """
     slack_display_name = models.CharField(
         max_length=80,
         blank=False,
