@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     "crispy_forms",
     # M05 App "Hackathon" added
     "hackathon",
+    "custom_accounts",
 ]
 
 MIDDLEWARE = [
@@ -78,6 +79,13 @@ AUTHENTICATION_BACKENDS = [
     # `allauth` specific authentication methods, such as login by e-mail
     "allauth.account.auth_backends.AuthenticationBackend",
 ]
+
+AUTH_USER_MODEL = 'custom_accounts.CustomUser'
+ACCOUNT_USER_MODEL_USERNAME_FIELD = 'username'
+ACCOUNT_SIGNUP_FORM_CLASS = 'custom_accounts.forms.SignupForm'
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_EMAIL_REQUIRED=True
+ACCOUNT_USERNAME_REQUIRED = False
 
 SITE_ID = 1
 

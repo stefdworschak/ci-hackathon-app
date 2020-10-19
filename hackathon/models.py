@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import User
+from custom_accounts.models import CustomUser
 
 # Optional fields are ony set to deal with object deletion issues.
 # If this isn't a problem, they can all be changed to required fields.
@@ -21,7 +21,7 @@ class Hackathon(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     # Each model can only be created by one user: One To Many
-    created_by = models.ForeignKey(User,
+    created_by = models.ForeignKey(CustomUser,
                                    on_delete=models.CASCADE,
                                    related_name="hackathons")
     display_name = models.CharField(default="", max_length=254)
@@ -30,11 +30,11 @@ class Hackathon(models.Model):
     end_date = models.DateTimeField()
     # Hackathons can have numerous judges and
     # users could be the judges of more than one Hackathon: Many to Many
-    judges = models.ManyToManyField(User,
+    judges = models.ManyToManyField(CustomUser,
                                     blank=True,
                                     related_name='hackathon_judges')
     # One organiser could organise more than one Hackathon: One To Many
-    organiser = models.ForeignKey(User,
+    organiser = models.ForeignKey(CustomUser,
                                   null=True,
                                   blank=True,
                                   on_delete=models.SET_NULL,
@@ -50,7 +50,7 @@ class HackAwardCategory(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     # Each model can only be created by one user: One To Many
-    created_by = models.ForeignKey(User,
+    created_by = models.ForeignKey(CustomUser,
                                    on_delete=models.CASCADE,
                                    related_name="hackawardcategories")
     display_name = models.CharField(default="", max_length=254)
@@ -80,7 +80,7 @@ class HackTeam(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     # Each model can only be created by one user: One To Many
-    created_by = models.ForeignKey(User,
+    created_by = models.ForeignKey(CustomUser,
                                    on_delete=models.CASCADE,
                                    related_name="hackteams")
     display_name = models.CharField(default="", max_length=254)
@@ -88,7 +88,7 @@ class HackTeam(models.Model):
     # teams and a team is made of a number of participants - Many to Many
     # Issue is that a user could join more than one team on the same Hackathon.
     # Could use a custom save method to prevent it.
-    participants = models.ManyToManyField(User,
+    participants = models.ManyToManyField(CustomUser,
                                           related_name='hackteam')
     # A team participates in one Hackathon and
     # a Hackathon has numerous teams: One to Many.
@@ -113,7 +113,7 @@ class HackProject(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     # Each model can only be created by one user: One To Many
-    created_by = models.ForeignKey(User,
+    created_by = models.ForeignKey(CustomUser,
                                    on_delete=models.CASCADE,
                                    related_name="hackprojects")
     display_name = models.CharField(default="", max_length=255)
@@ -122,7 +122,7 @@ class HackProject(models.Model):
     collab_link = models.URLField(default="", max_length=255)
     submission_time = models.DateTimeField(auto_now_add=True)
     # A project has one mentor, a mentor has numerous projects: One to Many.
-    mentor = models.ForeignKey(User,
+    mentor = models.ForeignKey(CustomUser,
                                null=True,
                                blank=True,
                                on_delete=models.SET_NULL,
@@ -138,11 +138,11 @@ class HackProjectScore(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     # Each model can only be created by one user: One To Many
-    created_by = models.ForeignKey(User,
+    created_by = models.ForeignKey(CustomUser,
                                    on_delete=models.CASCADE,
                                    related_name="hackprojectscores")
     # One Judge can give one score - One to One
-    judge = models.OneToOneField(User, on_delete=models.CASCADE)
+    judge = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
     # One score is for one project, a project has numerous scores: One to Many
     project = models.ForeignKey(HackProject,
                                 on_delete=models.CASCADE,
@@ -162,7 +162,7 @@ class HackProjectScoreCategory(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     # Each model can only be created by one user - One To Many
-    created_by = models.ForeignKey(User,
+    created_by = models.ForeignKey(CustomUser,
                                    on_delete=models.CASCADE,
                                    related_name="hackprojectscorecategories")
     category = models.CharField(default="", max_length=255)
