@@ -1,5 +1,5 @@
 from django.db import models
-from custom_accounts.models import CustomUser
+from accounts.models import CustomUser
 
 # Optional fields are ony set to deal with object deletion issues.
 # If this isn't a problem, they can all be changed to required fields.
