@@ -17,6 +17,7 @@ urlpatterns = [
     path("<int:hack_id>/final_score", check_projects_scores, name="final_score"),
     path("create_hackathon", create_hackathon, name='create_hackathon'),
 <<<<<<< HEAD
+<<<<<<< HEAD
     path("<int:hackathon_id>/", view_hackathon,
          name='view_hackathon'),
     path("<int:hackathon_id>/update", update_hackathon,
@@ -26,6 +27,10 @@ urlpatterns = [
     path('enroll/', enroll_toggle, name='enroll_toggle'),
 =======
     path("view_hackathon", view_hackathon, name='view_hackathon'),
+=======
+    path("<int:hackathon_id>/view_hackathon", view_hackathon,
+         name='view_hackathon'),
+>>>>>>> Hackathon returned via get_object_or_404 in views.py function, and default test rendered in hackathon-view.html template
     path("<int:hackathon_id>/update_hackathon", update_hackathon, name="update_hackathon"),
     path("<int:hackathon_id>/delete_hackathon", delete_hackathon, name="delete_hackathon"),
     path('<int:pk>/',

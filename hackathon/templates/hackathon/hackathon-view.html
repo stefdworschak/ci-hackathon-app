@@ -159,6 +159,14 @@
 {% load static %}
 
 {% block content %}
+<<<<<<< HEAD
     <h1>Welcome to the hackathon details view</h1>
 {% endblock %}
 >>>>>>> Rendered default hackathon_view view as proof of concept
+=======
+    {% if hackathon %}
+        {{ hackathon.id }}
+        {{ hackathon.display_name }}
+    {% endif %}
+{% endblock %}
+>>>>>>> Hackathon returned via get_object_or_404 in views.py function, and default test rendered in hackathon-view.html template
