@@ -45,6 +45,12 @@
                                 <p class="hackathon-sub-details"><i class="fas fa-chalkboard-teacher"></i> Organiser: {{ hackathon.organiser }}</p>
                                 <p class="hackathon-sub-details"><i class="fas fa-school"></i> Organisation: {{ hackathon.organisation }}</p>
                             </div>
+                            <!-- Render project submission button if user is participant of team -->
+                            {% if user in team.participants.get_queryset %}
+                                <div class="text-center">
+                                    <a href="#" class="btn btn-ci">Submit Project</a>
+                                </div>
+                            {% endif %}
                         </div>
 
                     </div>
