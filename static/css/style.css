@@ -2,10 +2,10 @@
     /* P = Primary | S = Secondary | T = Tertiary */
     --p-orange: #E84610;
     --p-blue: #009FE3;
-    --p-grey: #4A4A4F;
+    --p-grey: #4a4a4f;
     --p-navy: #445261;
     --p-red: #D63649;
-    --s-grey: #E6ECF0;
+    --s-grey: #e6ecf0;
     --s-yellow: #EFB920;
     --s-pink: #FF5A60;
     --s-teal: #23BBBB;
@@ -260,7 +260,6 @@ html .all-auth-container {
 }
 
 /* View Hackathon Page */
-
 .page-title::after {
     content: '';
     display: block;
@@ -338,15 +337,15 @@ h1.table_titles{
     background: var(--s-grey);
 }
 
-    /* Ensure teams in paginated view are centered at all times even when odd number of
-     teams persist in the view. */
+/* Ensure teams in paginated view are centered at all times even when odd number of
+    teams persist in the view. */
 .teams-row {
     -webkit-box-pack: center;
     -ms-flex-pack: center;
     justify-content: center;
 }
 
-    /* Set min-height of team-cards to suit for a minimum of 5 team members & submit project button */
+/* Set min-height of team-cards to suit for a minimum of 5 team members & submit project button */
 .team-card {
     min-height: 380px;
 }
