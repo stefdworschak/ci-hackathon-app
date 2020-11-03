@@ -246,8 +246,14 @@ def view_hackathon(request, hackathon_id):
     """
     hackathon = get_object_or_404(Hackathon, pk=hackathon_id)
 
+<<<<<<< HEAD
     teams = HackTeam.objects.filter(hackathon_id=hackathon_id).order_by(
         'display_name')
+=======
+    # teams pagination if more then 3 teams register to hackathon
+    teams = HackTeam.objects.filter(hackathon_id=hackathon_id).order_by(
+        '-display_name')
+>>>>>>> pagination added for teams in hackathon-view template along with complimentary styling for consistent utility spacing and structure flow
     paginator = Paginator(teams, 3)
     page = request.GET.get('page')
     paged_teams = paginator.get_page(page)
