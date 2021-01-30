@@ -24,10 +24,12 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.sites",
+
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
     "crispy_forms",
+    "django_extensions",
 
     # custom apps
     "accounts",
@@ -109,12 +111,12 @@ WSGI_APPLICATION = "main.wsgi.application"
 
 
 if "DATABASE_URL" in os.environ:
-    print("Postgres DATABASE_URL found.")
+    #print("Postgres DATABASE_URL found.")
     DATABASES = {
         "default": dj_database_url.parse(os.environ.get("DATABASE_URL"))
     }
 else:
-    print("Postgres DATABASE_URL not found, using db.sqlite3")
+    #print("Postgres DATABASE_URL not found, using db.sqlite3")
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
