@@ -10,7 +10,8 @@ from hackathon.models import Hackathon, HackTeam, HackProject
 from teams.helpers import choose_team_sizes, group_participants,\
                           choose_team_levels, find_all_combinations,\
                           distribute_participants_to_teams,\
-                          create_teams_in_view, update_team_participants
+                          create_teams_in_view, update_team_participants,\
+                          load_programming_languages_for_typeahead
 from teams.forms import HackProjectForm, EditTeamName
 
 
@@ -159,10 +160,11 @@ def create_project(request, team_id):
             form = HackProjectForm(instance=hack_project.get())
         else:
             form = HackProjectForm()
-
+        
     return render(request, 'create_project.html', {
         'form': form,
-        'team_id': team_id
+        'team_id': team_id,
+        'programming_languages': load_programming_languages_for_typeahead()
     })
 
 

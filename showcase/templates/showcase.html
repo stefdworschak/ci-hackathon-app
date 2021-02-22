@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load teams_tags %}
 
 {% block content %}
 
@@ -76,7 +77,7 @@
                                 {% if showcase.hack_project.technologies_used %}
                                 <label for="showcase_technologies_used"><strong>Technologies used</strong></label>
                                 <p id="showcase_technologies_used">
-                                    {{showcase.hack_project.technologies_used}}
+                                    {{team.project.technologies_used|add_space_after_comma}}
                                 </p>
                                 {% endif %}
                             </div>

@@ -1,4 +1,11 @@
 {% extends 'base.html' %}
+
+{% load static %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'lib/bootstrap-tagsinput-latest/dist/bootstrap-tagsinput.css' %}">
+{% endblock %}
+
 {% block content %}
 
 <div class="row">
@@ -9,12 +16,14 @@
                     <h4>Project Details</h4>
                 </div>
                 <div class="card-text">
-
                     <form method="POST">
                         {% csrf_token %}
                         {{ form.display_name|as_crispy_field }}
                         {{ form.description|as_crispy_field }}
-                        {{ form.technologies_used|as_crispy_field }}
+                        <label for="id_technologies_used" class="requiredField">
+                            Technologies Used<span class="asteriskField">*</span>
+                        </label>
+                        <input type="text" value="{{ form.technologies_used.value }}" id="id_technologies_used" name="technologies_used">
                         {{ form.github_url|as_crispy_field }}
                         {{ form.deployed_url|as_crispy_field }}
                         {{ form.speaker_name|as_crispy_field }}
@@ -31,4 +40,47 @@
     </div>
 </div>
 
+{% endblock %}
+
+
+{% block js%}
+<script>
+</script>
+<script src="{% static 'lib/bootstrap-tagsinput-latest/dist/bootstrap-tagsinput.js' %}"></script>
+<script src="{% static 'lib/typeahead/typeahead.bundle.js' %}"></script>
+<!-- <script src="{% static 'js/custom-tagsinput.js' %}"></script> -->
+
+{{ programming_languages|json_script:"programming_languages" }}
+<script>
+    const programming_languages = JSON.parse(document.getElementById('programming_languages').textContent);
+
+    var substringMatcher = function(strs) {
+        return function findMatches(q, cb) {
+            var matches, substringRegex;
+
+            // an array that will be populated with substring matches
+            matches = [];
+
+            // regex used to determine if a string contains the substring `q`
+            substrRegex = new RegExp(q, 'i');
+
+            // iterate through the pool of strings and for any string that
+            // contains the substring `q`, add it to the `matches` array
+            $.each(strs, function(i, str) {
+                if (substrRegex.test(str)) {
+                    matches.push(str);
+                }
+            });
+
+            cb(matches);
+        };
+    };
+    $('#id_technologies_used').tagsinput({
+        typeaheadjs: {
+        name: 'programming_languages',
+        source: substringMatcher(programming_languages)
+        }
+    });
+
+</script>
 {% endblock %}

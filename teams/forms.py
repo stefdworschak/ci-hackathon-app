@@ -16,7 +16,8 @@ class HackProjectForm(forms.ModelForm):
     )
     technologies_used = forms.CharField(
         label='Technologies used',
-        required=True
+        required=True,
+        widget=forms.TextInput(attrs={'data-role': 'tagsinput'}),
     )
     github_url = forms.URLField(
         label='GitHub url',

@@ -58,6 +58,39 @@ a:hover {
     color: var(--p-orange);
 }
 
+/* tagsinput */
+.bootstrap-tagsinput span.tag.label.label-info {
+    background: #17a2b8;
+    width: fit-content;
+    display: inline-block;
+    padding: .25em .4em;
+    font-size: 75%;
+    font-weight: 700;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: .25rem;
+    transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+
+.tt-menu.tt-open {
+    background: white;
+    
+    border: 1px solid lightgray;
+    border-radius: 5px;
+}
+.tt-menu.tt-open:hover {
+    cursor: pointer;
+}
+.tt-suggestion.tt-selectable {
+    padding: 6px 10px;
+}
+.tt-suggestion.tt-selectable:hover {
+    background: lightgray;
+}
+
+
 /* MAIN */
 main {
     margin-top: 2em;

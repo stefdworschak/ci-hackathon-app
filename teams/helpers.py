@@ -1,11 +1,20 @@
 from copy import deepcopy
 from itertools import combinations
 import json
+import logging
 import math
+import os
+
+from django.conf import settings
+from django.contrib.staticfiles.storage import staticfiles_storage
 
 from .lists import LMS_LEVELS
 from accounts.models import CustomUser
 from hackathon.models import Hackathon, HackTeam
+
+PROGRAMMING_LANGUAGES_FILE = 'assets/programming_languages.json'
+
+logger = logging.getLogger(__name__)
 
 
 def choose_team_sizes(participants, teamsize):
@@ -210,3 +219,14 @@ def update_team_participants(created_by_user, teams, hackathon_id):
             hackathon = Hackathon.objects.get(id=hackathon_id)
             create_new_team_and_add_participants(created_by_user, team_name,
                                          team_members, hackathon)
+
+
+def load_programming_languages_for_typeahead():
+    """ Retrieves and returns a list of programming languages from a file """
+    try:
+        file_path = staticfiles_storage.path(PROGRAMMING_LANGUAGES_FILE)
+        with open(os.path.join(settings.BASE_DIR, file_path)) as f:
+            return json.load(f)
+    except FileNotFoundError:
+        logger.error(f'Programming Languages File not found at: {file_path}')
+        return []
