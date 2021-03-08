@@ -3,6 +3,7 @@ from django.core.paginator import Paginator
 from django.conf import settings
 from django.shortcuts import render, redirect, reverse
 
+from .models import InstructionalContent
 from hackathon.models import Hackathon
 
 PUBLIC_STATUSES = [
@@ -55,6 +56,14 @@ def privacy_policy(request):
     """ A view to return the Privacy Policy page """
 
     return render(request, "privacy-policy.html")
+
+
+def instructional_content(request):
+    """ A view to show instructional content about the app """
+    content = InstructionalContent.objects.filter(is_active=True
+        ).order_by('position')
+    return render(request, "instructions.html", {
+        'instructional_content': content})
 
 
 def useful_resources(request):

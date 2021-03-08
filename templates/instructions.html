@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col">
+        <div class="card p-5">
+
+            {% if instructional_content %}
+            {% for content in instructional_content %}
+            <div class="card mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="card-title">
+                            <h3>{{content.display_name}}</h3>
+                        </div>
+                        <div class="card-text">
+                            {% if content.content_type in 'video,image' %}
+                            <div class="card-text-caption">
+                                {{content.description}}
+                            </div>
+                            <div class="card-external">
+                                {% if content.content_type == 'video' %}
+                                <video width="100%" controls>
+                                    <source src="{{content.external_url}}" alt="{{content.display_name}}">
+                                </video>
+                                {% else %}
+                                <img src="{{content.external_url}}" alt="{{content.display_name}}">
+                                {% endif %}
+                            </div>
+                            {% elif content.content_type == 'link' %}
+                            <div class="card-text">
+                                <a href="{{content.external_url}}" target="_blank">{{content.description}}</a>
+                            </div>
+                            <div class="card-text-caption">
+                                {{content.description}}
+                            </div>
+                            {% else %}
+                            <div class="card-text">
+                                {{content.description}}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -7,8 +7,8 @@ urlpatterns = [
     path("plagiarism_policy/", views.plagiarism_policy, name="plagiarism_policy"),
     path("privacy_policy/", views.privacy_policy, name="privacy_policy"),
     path("post_login/", views.index, name="post_login"),
+    path("instructions/", views.instructional_content, name="instructions"),
 
     path("500/", views.test_500),
     path("404/", views.test_404),
 ]
-
