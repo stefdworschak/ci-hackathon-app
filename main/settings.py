@@ -197,3 +197,5 @@ if os.environ.get('SENTRY_DSN'):
         dsn=os.environ.get('SENTRY_DSN'),
         integrations=[DjangoIntegration()]
     )
+
+GITHUB_TOKEN = os.environ.get('GITHUB_TOKEN')

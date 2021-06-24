@@ -1,4 +1,5 @@
 from copy import deepcopy
+import json
 import math
 
 from django.core.management import call_command
@@ -12,6 +13,9 @@ from .helpers import choose_team_sizes, choose_team_levels,\
                      distribute_participants_to_teams, get_users_from_ids,\
                      create_new_team_and_add_participants,\
                      create_teams_in_view
+from .github import get_repo_events, get_pagination, create_activity_record, \
+                    get_push_additions_and_deletions
+
 
 @tag('unit')
 class TeamsHelpersTestCase(TestCase):
@@ -55,7 +59,7 @@ class TeamsHelpersTestCase(TestCase):
 
         self.assertTrue(isinstance(participants, dict))
         self.assertTrue(isinstance(team_progression_level, int))
-    
+
     def test_find_group_combinations(self):
         group_levels = [1, 1, 1, 2, 3, 4]
         team_size = 2
@@ -96,11 +100,10 @@ class TeamsHelpersTestCase(TestCase):
 
         new_hack_team = create_new_team_and_add_participants(
             created_by_user, team_name, team_members, hackathon)
-        
+
         self.assertTrue(isinstance(new_hack_team, HackTeam))
         self.assertEqual(len(new_hack_team.participants.all()), 2)
-        
-    
+
     def test_get_users_from_ids(self):
         team_members = [
             {'userid': 13, 'name': 'Palpatine@test.com', 'level': 4},
@@ -157,10 +160,46 @@ class TeamsViewsTestCase(TestCase):
         self.client.force_login(self.participant_user)
         response = self.client.get('/hackathon/1/change_teams/')
         self.assertEqual(302, response.status_code)
-    
+
     def test_view_change_teams_with_admin_user(self):
         """ Test to see if staff can access the view to change teams """
-        login = self.client.force_login(self.admin_user)
+        self.client.force_login(self.admin_user)
         response = self.client.get('/hackathon/1/change_teams/')
         self.assertEqual(200, response.status_code)
         self.assertTemplateUsed('change_teams.html')
+
+
+@tag('unit')
+class GitHubIndicatorTestCase(TestCase):
+    def test_get_github_data(self):
+        owner = 'anteCedens'
+        repo = 'proud-coders-hackathon'
+        repo_events = get_repo_events(owner, repo)
+        self.assertTrue(len(repo_events) == 300)
+
+    def test_get_pagination(self):
+        header_links = "<https://api.github.com/repositories/377992671/events?page=1&per_page=100>; rel='prev', <https://api.github.com/repositories/377992671/events?page=3&per_page=100>; rel='next', <https://api.github.com/repositories/377992671/events?page=3&per_page=100>; rel='last', <https://api.github.com/repositories/377992671/events?page=1&per_page=100>; rel='first'"
+        expected = {
+            'prev': 'https://api.github.com/repositories/377992671/events?page=1&per_page=100',
+            'next': 'https://api.github.com/repositories/377992671/events?page=3&per_page=100',
+            'last': 'https://api.github.com/repositories/377992671/events?page=3&per_page=100',
+            'first': 'https://api.github.com/repositories/377992671/events?page=1&per_page=100',
+        }
+        pagination = get_pagination(header_links)
+        self.assertEqual(pagination, expected)
+
+    def test_create_activity_record(self):
+        with open('teams/github_events.json') as f:
+            github_events = json.load(f)
+
+        expected = ['type', 'actor', 'commits', 'additions', 'deletions']
+        activity_record = create_activity_record(github_events[0])
+        self.assertEqual(list(activity_record.keys()), expected)
+
+    def test_get_push_additions_and_deletions(self):
+        with open('teams/push_event.json') as f:
+            push_event = json.load(f)
+
+        commits = push_event.get('payload', {}).get('commits', {})
+        additions_deletions = get_push_additions_and_deletions(commits)
+        self.assertEqual(additions_deletions, (28, 12))
