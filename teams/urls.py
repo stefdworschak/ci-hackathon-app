@@ -1,7 +1,7 @@
 from django.urls import path
 
 from .views import view_team, create_teams, clear_teams, create_project,\
-                   rename_team, create_group_im
+                   rename_team, create_group_im, view_team_github_stats
 from showcase.views import create_or_update_showcase
 
 urlpatterns = [
@@ -13,6 +13,8 @@ urlpatterns = [
      path("<int:team_id>/create_group_im/", create_group_im,
           name="create_group_im"),
      path("<int:team_id>/rename/", rename_team, name="rename_team"),
+     path("<int:team_id>/github/", view_team_github_stats,
+          name="renview_team_github_statsame_team"),
      path("create/", create_teams, name="create_teams"),
      path("clear/", clear_teams, name="clear_teams"),
 ]

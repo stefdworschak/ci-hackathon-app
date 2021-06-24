@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="row">
+    <div class="col">
+        <div class="card">
+            <div class="card-body create-project-card">
+                <div class="card-title">
+                    <h4>GitHub Stats for Team</h4>
+                </div>
+                <div class="card-text">
+
+                    {{spider_chart|safe}}
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

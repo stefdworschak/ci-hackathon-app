@@ -1,10 +1,20 @@
+import re
 import requests
 
 from django.conf import settings
+import plotly.graph_objects as go
+
+GITHUB_EVENTS = [
+    'CommitCommentEvent', 'CreateEvent', 'DeleteEvent', 'ForkEvent',
+    'GollumEvent', 'IssueCommentEvent', 'IssuesEvent', 'MemberEvent',
+    'PublicEvent', 'PullRequestEvent', 'PullRequestReviewEvent',
+    'PullRequestReviewCommentEvent', 'PushEvent', 'ReleaseEvent',
+    'SponsorshipEvent', 'WatchEvent',
+    ]
 
 
 def get_repo_events(owner, repo):
-    """ Retrieve all events from a public GitHub repo
+    """ Retrieves all events from a public GitHub repo
 
     This endpoint can only retrieve events from the last 90 days
 
@@ -18,16 +28,13 @@ def get_repo_events(owner, repo):
     while pagination.get('next'):
         res = requests.get(pagination.get('next'), headers=headers)
         if res.status_code != 200:
-            print(res.content)
             return []
 
         data += res.json()
         if not res.headers.get('Link'):
-            print(res.headers.get('Link'))
             break
 
         pagination = get_pagination(res.headers.get('Link'))
-        print(pagination)
     return data
 
 
@@ -82,6 +89,8 @@ def create_activity_record(event):
 
 
 def get_push_additions_and_deletions(commits):
+    """ Retrieves all additions and deletions from a commit from the GitHub
+    API endpoint """
     additions = 0
     deletions = 0
     commit_details = []
@@ -99,6 +108,7 @@ def get_push_additions_and_deletions(commits):
 
 
 def compile_repo_activity_by_user(owner, repo):
+    """ Compiles all activity for each user working on a repo """
     repo_events = get_repo_events(owner, repo)
     repo_activity_records = [create_activity_record(event)
                              for event in repo_events]
@@ -106,8 +116,62 @@ def compile_repo_activity_by_user(owner, repo):
     for record in repo_activity_records:
         user = record.get('user')
         event_type = record.get('type')
-        repo_activity.setdefault(user, {})
-        repo_activity[user].setdefault(event_type, [])
-        repo_activity[user][event_type].append(record)
+        repo_activity.setdefault(user, {
+            'events': {},
+            'commits': 0,
+            'additions': 0,
+            'deletions': 0,
+        })
+        repo_activity[user]['events'].setdefault(event_type, 0)
+        repo_activity[user]['events'][event_type] += 1
+        repo_activity[user]['commits'] += record.get('commits', 0)
+        repo_activity[user]['additions'] += record.get('additions', 0)
+        repo_activity[user]['deletions'] += record.get('deletions', 0)
 
     return repo_activity
+
+
+def create_spider_chart_data(repo_activity):
+    """ Creates the data used for the spider charts"""
+    data = []
+    for user, activity in repo_activity.items():
+        chart_data = {}
+        chart_data['label'] = user
+        chart_data['data'] = [activity['events'].get(category, 0)
+                              for category in GITHUB_EVENTS]
+        chart_data['categories'] = GITHUB_EVENTS
+        data.append(chart_data)
+
+    return data
+
+
+def create_activity_spider_chart(chart_data):
+    """ Creates chart from chart data and returns the HTML for the chart """
+    fig = go.Figure()
+    upper_range = 0
+    for datapoint in chart_data:
+        upper_range = max(upper_range, max(datapoint['data']))
+        fig.add_trace(go.Scatterpolar(
+            r=datapoint['data'],
+            theta=datapoint['categories'],
+            fill='toself',
+            name=datapoint['label']
+        ))
+
+    fig.update_layout(
+        polar=dict(
+            radialaxis=dict(
+                visible=True,
+                range=[0, upper_range]
+            )),
+        showlegend=False)
+
+    return fig.to_html(full_html=False, default_height=500, default_width=500)
+
+
+def extract_owner_and_repo_from_url(url):
+    """ Extracts the owner and repo from a github repo url """
+    pattern = r'^((http|https)[:][\/][\/]|www)?([a-zA-Z0-9]|[._-]|[@])*[\/]'
+    owner_repo = re.sub(pattern, '', url).split('/')
+    owner, repo = owner_repo[0], owner_repo[1]
+    return owner, repo

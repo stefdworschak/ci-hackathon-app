@@ -1,0 +1,51 @@
+{
+    "stefdworschak": {
+        "events": {
+            "IssuesEvent": 13,
+            "IssueCommentEvent": 9,
+            "CreateEvent": 10,
+            "ReleaseEvent": 10,
+            "PullRequestEvent": 14,
+            "PushEvent": 13,
+            "PullRequestReviewCommentEvent": 13,
+            "PullRequestReviewEvent": 15
+        },
+        "commits": 105,
+        "additions": 5242,
+        "deletions": 2225
+    },
+    "TravelTimN": {
+        "events": {
+            "IssueCommentEvent": 2,
+            "PullRequestReviewEvent": 9,
+            "PullRequestReviewCommentEvent": 18
+        },
+        "commits": 0,
+        "additions": 0,
+        "deletions": 0
+    },
+    "JimLynx": {
+        "events": {
+            "ReleaseEvent": 1,
+            "CreateEvent": 1,
+            "PushEvent": 1,
+            "PullRequestEvent": 1,
+            "PullRequestReviewEvent": 2,
+            "PullRequestReviewCommentEvent": 1
+        },
+        "commits": 7,
+        "additions": 50,
+        "deletions": 24
+    },
+    "dependabot[bot]": {
+        "events": {
+            "DeleteEvent": 4,
+            "IssueCommentEvent": 2,
+            "PullRequestEvent": 7,
+            "CreateEvent": 5
+        },
+        "commits": 7,
+        "additions": 64,
+        "deletions": 60
+    }
+}

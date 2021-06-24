@@ -13,9 +13,11 @@ from .helpers import choose_team_sizes, choose_team_levels,\
                      distribute_participants_to_teams, get_users_from_ids,\
                      create_new_team_and_add_participants,\
                      create_teams_in_view
-from .github import get_repo_events, get_pagination, create_activity_record, \
+from .github import GITHUB_EVENTS, get_repo_events, get_pagination, create_activity_record, \
                     get_push_additions_and_deletions, \
-                    compile_repo_activity_by_user
+                    compile_repo_activity_by_user, create_spider_chart_data, \
+                    create_activity_spider_chart, \
+                    extract_owner_and_repo_from_url
 
 
 @tag('unit')
@@ -190,7 +192,7 @@ class GitHubIndicatorTestCase(TestCase):
         self.assertEqual(pagination, expected)
 
     def test_create_activity_record(self):
-        with open('teams/github_events.json') as f:
+        with open('teams/test_data/github_events.json') as f:
             github_events = json.load(f)
 
         expected = ['type', 'actor', 'commits', 'additions', 'deletions']
@@ -198,7 +200,7 @@ class GitHubIndicatorTestCase(TestCase):
         self.assertEqual(list(activity_record.keys()), expected)
 
     def test_get_push_additions_and_deletions(self):
-        with open('teams/push_event.json') as f:
+        with open('teams/test_data/push_event.json') as f:
             push_event = json.load(f)
 
         commits = push_event.get('payload', {}).get('commits', {})
@@ -212,3 +214,48 @@ class GitHubIndicatorTestCase(TestCase):
         with open('teams/repo_activity.json', 'w+') as f:
             json.dump(repo_activity, f, indent=4, default=str)
         self.assertTrue(repo_activity)
+
+    def test_create_spider_chart_data(self):
+        with open('teams/test_data/repo_activity.json') as f:
+            repo_activity = json.load(f)
+
+        expected = [
+            {
+                'label': 'stefdworschak',
+                'data': [0, 10, 0, 0, 0, 9, 13, 0, 0, 14, 15, 13, 13, 10, 0, 0],  # noqa: E501
+                'categories': GITHUB_EVENTS,
+            }, {
+                'label': 'TravelTimN',
+                'data': [0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 9, 18, 0, 0, 0, 0],
+                'categories': GITHUB_EVENTS,
+            }, {
+                'label': 'JimLynx',
+                'data': [0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 2, 1, 1, 1, 0, 0],
+                'categories': GITHUB_EVENTS,
+            }, {
+                'label': 'dependabot[bot]',
+                'data': [0, 5, 4, 0, 0, 2, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0],
+                'categories': GITHUB_EVENTS,
+            }]
+        spider_chart_data = create_spider_chart_data(repo_activity)
+        self.assertEqual(spider_chart_data, expected)
+
+    def create_activity_spider_chart(self):
+        with open('teams/test_data/repo_activity.json') as f:
+            repo_activity = json.load(f)
+
+        spider_chart_data = create_spider_chart_data(repo_activity)
+        spider_chart_html = create_activity_spider_chart(spider_chart_data)
+        print(spider_chart_html)
+
+    def test_extract_owner_and_repo_from_url(self):
+        u1 = 'http://github.com/user1/repo1'
+        u2 = 'https://github.com/user2/repo2'
+        u3 = 'github@github.com/user3/repo3'
+
+        user_repo1 = extract_owner_and_repo_from_url(u1)
+        self.assertEqual(user_repo1, ('user1', 'repo1'))
+        user_repo2 = extract_owner_and_repo_from_url(u2)
+        self.assertEqual(user_repo2, ('user2', 'repo2'))
+        user_repo3 = extract_owner_and_repo_from_url(u3)
+        self.assertEqual(user_repo3, ('user3', 'repo3'))

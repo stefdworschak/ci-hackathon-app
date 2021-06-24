@@ -68,7 +68,7 @@ def list_hackathons(request):
 @can_access([UserType.SUPERUSER, UserType.STAFF, UserType.FACILITATOR_ADMIN,
              UserType.FACILITATOR_JUDGE, UserType.PARTNER_ADMIN,
              UserType.PARTNER_JUDGE],
-             redirect_url='hackathon:hackathon-list')
+            redirect_url='hackathon:hackathon-list')
 def judging(request, hackathon_id, team_id):
     """Displays the judging page for the judge to save their scores
     for the selected project - determined by hackathon id and team id"""
