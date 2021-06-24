@@ -14,7 +14,8 @@ from .helpers import choose_team_sizes, choose_team_levels,\
                      create_new_team_and_add_participants,\
                      create_teams_in_view
 from .github import get_repo_events, get_pagination, create_activity_record, \
-                    get_push_additions_and_deletions
+                    get_push_additions_and_deletions, \
+                    compile_repo_activity_by_user
 
 
 @tag('unit')
@@ -171,11 +172,11 @@ class TeamsViewsTestCase(TestCase):
 
 @tag('unit')
 class GitHubIndicatorTestCase(TestCase):
-    def test_get_github_data(self):
-        owner = 'anteCedens'
-        repo = 'proud-coders-hackathon'
+    def test_get_repo_events(self):
+        owner = 'Code-Institute-Community'
+        repo = 'ci-hackathon-app'
         repo_events = get_repo_events(owner, repo)
-        self.assertTrue(len(repo_events) == 300)
+        self.assertTrue(len(repo_events) > 150)
 
     def test_get_pagination(self):
         header_links = "<https://api.github.com/repositories/377992671/events?page=1&per_page=100>; rel='prev', <https://api.github.com/repositories/377992671/events?page=3&per_page=100>; rel='next', <https://api.github.com/repositories/377992671/events?page=3&per_page=100>; rel='last', <https://api.github.com/repositories/377992671/events?page=1&per_page=100>; rel='first'"
@@ -202,4 +203,12 @@ class GitHubIndicatorTestCase(TestCase):
 
         commits = push_event.get('payload', {}).get('commits', {})
         additions_deletions = get_push_additions_and_deletions(commits)
-        self.assertEqual(additions_deletions, (28, 12))
+        self.assertEqual(additions_deletions, (147, 13))
+
+    def test_compile_repo_activity_by_user(self):
+        owner = 'Code-Institute-Community'
+        repo = 'ci-hackathon-app'
+        repo_activity = compile_repo_activity_by_user(owner, repo)
+        with open('teams/repo_activity.json', 'w+') as f:
+            json.dump(repo_activity, f, indent=4, default=str)
+        self.assertTrue(repo_activity)

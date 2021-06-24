@@ -1,79 +1,66 @@
 {
-    "id": "16852636117",
+    "id": "16614228409",
     "type": "PushEvent",
     "actor": {
-        "id": 58217632,
-        "login": "anteCedens",
-        "display_login": "anteCedens",
+        "id": 31205982,
+        "login": "dummyUser",
+        "display_login": "dummyUser",
         "gravatar_id": "",
-        "url": "https://api.github.com/users/anteCedens",
-        "avatar_url": "https://avatars.githubusercontent.com/u/58217632?"
+        "url": "https://api.github.com/users/dummyUser",
+        "avatar_url": "https://avatars.githubusercontent.com/u/31205982?"
     },
     "repo": {
-        "id": 377992671,
-        "name": "anteCedens/proud-coders-hackathon",
-        "url": "https://api.github.com/repos/anteCedens/proud-coders-hackathon"
+        "id": 269061650,
+        "name": "Code-Institute-Community/ci-hackathon-app",
+        "url": "https://api.github.com/repos/Code-Institute-Community/ci-hackathon-app"
     },
     "payload": {
-        "push_id": 7364943527,
-        "size": 5,
+        "push_id": 7245208744,
+        "size": 1,
         "distinct_size": 1,
         "ref": "refs/heads/master",
-        "head": "488bca310b35ea00b61382a920267cf5fb8cc681",
-        "before": "93328778e17ef118d4038231d48304f121b23b27",
+        "head": "ae2a37bd5ad9550fb166826eaf46356141c77b3a",
+        "before": "419fe036dab0041ebd35cd8a4775763b34830f70",
         "commits": [
             {
-                "sha": "966da3f58da79fbf3f53421830c2d796c8194341",
+                "sha": "ae2a37bd5ad9550fb166826eaf46356141c77b3a",
                 "author": {
-                    "email": "jaksa.juric@yahoo.com.hr",
-                    "name": "anteCedens"
+                    "email": "dummy.user@codeinstitute.example.com",
+                    "name": "Dummy User"
                 },
-                "message": "Comment-out fixed width for .pride-link",
-                "distinct": false,
-                "url": "https://api.github.com/repos/anteCedens/proud-coders-hackathon/commits/966da3f58da79fbf3f53421830c2d796c8194341"
-            },
-            {
-                "sha": "a0c85d2ab64f10039c3b31f8f5fc0128ac3618f3",
-                "author": {
-                    "email": "jaksa.juric@yahoo.com.hr",
-                    "name": "anteCedens"
-                },
-                "message": "Add logo .png and .ico images to assets/images/logo",
-                "distinct": false,
-                "url": "https://api.github.com/repos/anteCedens/proud-coders-hackathon/commits/a0c85d2ab64f10039c3b31f8f5fc0128ac3618f3"
-            },
-            {
-                "sha": "c56a4f7c2d591e7678729351f6f86b3fa1b2c0a2",
-                "author": {
-                    "email": "jaksa.juric@yahoo.com.hr",
-                    "name": "anteCedens"
-                },
-                "message": "Add favicon and logo image to navbar across all html files",
-                "distinct": false,
-                "url": "https://api.github.com/repos/anteCedens/proud-coders-hackathon/commits/c56a4f7c2d591e7678729351f6f86b3fa1b2c0a2"
-            },
-            {
-                "sha": "dd7420f279b6a8ef26d0006376519115a7b4a9e6",
-                "author": {
-                    "email": "jaksa.juric@yahoo.com.hr",
-                    "name": "anteCedens"
-                },
-                "message": "Change index.html title from 'Document' to 'Solace in Colour'",
-                "distinct": false,
-                "url": "https://api.github.com/repos/anteCedens/proud-coders-hackathon/commits/dd7420f279b6a8ef26d0006376519115a7b4a9e6"
-            },
-            {
-                "sha": "488bca310b35ea00b61382a920267cf5fb8cc681",
-                "author": {
-                    "email": "58217632+anteCedens@users.noreply.github.com",
-                    "name": "anteCedens"
-                },
-                "message": "Merge pull request #35 from anteCedens/logo\n\nLogo",
+                "message": "Adding github action",
                 "distinct": true,
-                "url": "https://api.github.com/repos/anteCedens/proud-coders-hackathon/commits/488bca310b35ea00b61382a920267cf5fb8cc681"
+                "url": "https://api.github.com/repos/Code-Institute-Community/ci-hackathon-app/commits/ae2a37bd5ad9550fb166826eaf46356141c77b3a"
+            },
+            {
+                "sha": "419fe036dab0041ebd35cd8a4775763b34830f70",
+                "author": {
+                    "email": "dummy.user@codeinstitute.example.com",
+                    "name": "Dummy User"
+                },
+                "message": "#A19. As Admin, I would like to change which hackathons are included in the showcase and be able to select a specific order (#182)",
+                "distinct": true,
+                "url": "https://api.github.com/repos/Code-Institute-Community/ci-hackathon-app/commits/419fe036dab0041ebd35cd8a4775763b34830f70"
+            },
+            {
+                "sha": "22ce717332536565aa213649a14671d6a4f825ac",
+                "author": {
+                    "email": "dummy.user@codeinstitute.example.com",
+                    "name": "Dummy User"
+                },
+                "message": "Bumping Django to 3.1.8",
+                "distinct": true,
+                "url": "https://api.github.com/repos/Code-Institute-Community/ci-hackathon-app/commits/22ce717332536565aa213649a14671d6a4f825ac"
             }
         ]
     },
     "public": true,
-    "created_at": "2021-06-20T20:41:54Z"
+    "created_at": "2021-06-02T14:53:11Z",
+    "org": {
+        "id": 71883673,
+        "login": "Code-Institute-Community",
+        "gravatar_id": "",
+        "url": "https://api.github.com/orgs/Code-Institute-Community",
+        "avatar_url": "https://avatars.githubusercontent.com/u/71883673?"
+    }
 }
