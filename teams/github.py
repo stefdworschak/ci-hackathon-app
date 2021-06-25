@@ -12,6 +12,20 @@ GITHUB_EVENTS = [
     'SponsorshipEvent', 'WatchEvent',
     ]
 
+MODEBAR_REMOVE = [
+    "autoScale2d", "autoscale", "editInChartStudio", "editinchartstudio",
+    "hoverCompareCartesian", "hovercompare", "lasso", "lasso2d",
+    "orbitRotation", "orbitrotation", "pan", "pan2d", "pan3d", "reset",
+    "resetCameraDefault3d", "resetCameraLastSave3d", "resetGeo",
+    "resetSankeyGroup", "resetScale2d", "resetViewMapbox", "resetViews",
+    "resetcameradefault", "resetcameralastsave", "resetsankeygroup",
+    "resetscale", "resetview", "resetviews", "select", "select2d",
+    "sendDataToCloud", "senddatatocloud", "tableRotation", "tablerotation",
+    "toImage", "toggleHover", "toggleSpikelines", "togglehover",
+    "togglespikelines", "toimage", "zoom", "zoom2d", "zoom3d", "zoomIn2d",
+    "zoomInGeo", "zoomInMapbox", "zoomOut2d", "zoomOutGeo", "zoomOutMapbox",
+    "zoomin", "zoomout"]
+
 
 def get_repo_events(owner, repo):
     """ Retrieves all events from a public GitHub repo
@@ -155,7 +169,8 @@ def create_activity_spider_chart(chart_data):
             r=datapoint['data'],
             theta=datapoint['categories'],
             fill='toself',
-            name=datapoint['label']
+            name=datapoint['label'],
+            hovertemplate="%{theta}s: %{r}"
         ))
 
     fig.update_layout(
@@ -163,10 +178,14 @@ def create_activity_spider_chart(chart_data):
             radialaxis=dict(
                 visible=True,
                 range=[0, upper_range]
-            )),
-        showlegend=False)
+            ),
+        ),
+        showlegend=True,
+        autosize=True,
+        modebar=dict(remove=MODEBAR_REMOVE),
+    )
 
-    return fig.to_html(full_html=False, default_height=500, default_width=500)
+    return fig.to_html(full_html=False, default_height=500, default_width=600)
 
 
 def extract_owner_and_repo_from_url(url):
