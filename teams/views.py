@@ -279,6 +279,7 @@ def create_group_im(request, team_id):
             redirect_url='hackathon:hackathon-list')
 def view_team_github_stats(request, team_id):
     spider_chart = None
+    participant_charts =[]
     hack_team = get_object_or_404(HackTeam, id=team_id)
 
     if hack_team.project:
@@ -286,6 +287,8 @@ def view_team_github_stats(request, team_id):
             hack_team.project.github_url)
         repo_activity = compile_repo_activity_by_user(owner, repo)
         spider_chart_data = create_spider_chart_data(repo_activity)
-        spider_chart = create_activity_spider_chart(spider_chart_data)
+        for chart_data in spider_chart_data:
+            participant_charts.append(
+                create_activity_spider_chart([chart_data]))
     return render(request, 'github_stats.html',
-                  {'spider_chart': spider_chart})
+                  {'spider_charts': participant_charts})

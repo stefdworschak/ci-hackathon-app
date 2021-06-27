@@ -10,7 +10,14 @@
                 </div>
                 <div class="card-text">
 
-                    {{spider_chart|safe}}
+                    {% if spider_charts %}
+                    {% for chart in spider_charts %}
+                        <h5>{{chart.label}}</h5>
+                        {{chart|safe}}
+                    {% endfor%}
+                    {% else %}
+                    No stats available at the moment
+                    {% endif %}
 
                 </div>
             </div>

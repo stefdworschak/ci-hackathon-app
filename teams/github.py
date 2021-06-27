@@ -26,6 +26,8 @@ MODEBAR_REMOVE = [
     "zoomInGeo", "zoomInMapbox", "zoomOut2d", "zoomOutGeo", "zoomOutMapbox",
     "zoomin", "zoomout"]
 
+GITHUB_DEFAULT_MAIN_BRANCHES = ["refs/heads/master", "refs/heads/main"]
+
 
 def get_repo_events(owner, repo):
     """ Retrieves all events from a public GitHub repo
@@ -89,9 +91,13 @@ def create_activity_record(event):
         activity_record['deletions'] = pull_request.get('deletions', 0)
     elif event_type == 'PushEvent':
         commits = event.get('payload', {}).get('commits', {})
+        ref = event.get('payload', {}).get('ref')
         activity_record['commits'] = len(commits)
         # TODO: Tranverse through commits to get additions and deletions
-        additions, deletions = get_push_additions_and_deletions(commits)
+        if ref in GITHUB_DEFAULT_MAIN_BRANCHES:
+            additions, deletions = get_push_additions_and_deletions(commits)
+        else:
+            additions, deletions = 0, 0
         activity_record['additions'] = additions
         activity_record['deletions'] = deletions
     else:

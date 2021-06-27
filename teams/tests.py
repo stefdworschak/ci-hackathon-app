@@ -246,7 +246,7 @@ class GitHubIndicatorTestCase(TestCase):
 
         spider_chart_data = create_spider_chart_data(repo_activity)
         spider_chart_html = create_activity_spider_chart(spider_chart_data)
-        print(spider_chart_html)
+        self.assertTrue(spider_chart_html)
 
     def test_extract_owner_and_repo_from_url(self):
         u1 = 'http://github.com/user1/repo1'
