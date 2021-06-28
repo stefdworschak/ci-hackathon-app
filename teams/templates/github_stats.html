@@ -12,8 +12,8 @@
 
                     {% if spider_charts %}
                     {% for chart in spider_charts %}
-                        <h5>{{chart.label}}</h5>
-                        {{chart|safe}}
+                        <h5>{{chart.participant_name}}</h5>
+                        {{chart.chart_html|safe}}
                     {% endfor%}
                     {% else %}
                     No stats available at the moment

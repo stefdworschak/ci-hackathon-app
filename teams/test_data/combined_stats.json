@@ -1,0 +1,77 @@
+{
+    "user1": {
+        "stats": {
+            "a": 11722,
+            "d": 3200,
+            "c": 63
+        },
+        "events": {
+            "CommitCommentEvent": 0,
+            "CreateEvent": 10,
+            "DeleteEvent": 0,
+            "ForkEvent": 0,
+            "GollumEvent": 0,
+            "IssueCommentEvent": 9,
+            "IssuesEvent": 13,
+            "MemberEvent": 0,
+            "PublicEvent": 0,
+            "PullRequestEvent": 14,
+            "PullRequestReviewEvent": 15,
+            "PullRequestReviewCommentEvent": 13,
+            "PushEvent": 13,
+            "ReleaseEvent": 10,
+            "SponsorshipEvent": 0,
+            "WatchEvent": 0
+        }
+    },
+    "user2": {
+        "stats": {
+            "a": 1476,
+            "d": 401,
+            "c": 29
+        },
+        "events": {
+            "CommitCommentEvent": 0,
+            "CreateEvent": 0,
+            "DeleteEvent": 0,
+            "ForkEvent": 0,
+            "GollumEvent": 0,
+            "IssueCommentEvent": 2,
+            "IssuesEvent": 0,
+            "MemberEvent": 0,
+            "PublicEvent": 0,
+            "PullRequestEvent": 0,
+            "PullRequestReviewEvent": 9,
+            "PullRequestReviewCommentEvent": 18,
+            "PushEvent": 0,
+            "ReleaseEvent": 0,
+            "SponsorshipEvent": 0,
+            "WatchEvent": 0
+        }
+    },
+    "user3": {
+        "stats": {
+            "a": 19,
+            "d": 19,
+            "c": 1
+        },
+        "events": {
+            "CommitCommentEvent": 5,
+            "CreateEvent": 0,
+            "DeleteEvent": 0,
+            "ForkEvent": 0,
+            "GollumEvent": 0,
+            "IssueCommentEvent": 0,
+            "IssuesEvent": 0,
+            "MemberEvent": 0,
+            "PublicEvent": 0,
+            "PullRequestEvent": 3,
+            "PullRequestReviewEvent": 0,
+            "PullRequestReviewCommentEvent": 0,
+            "PushEvent": 1,
+            "ReleaseEvent": 0,
+            "SponsorshipEvent": 0,
+            "WatchEvent": 0
+        }
+    }
+}

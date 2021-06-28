@@ -1,6 +1,4 @@
-from copy import deepcopy
 import json
-import math
 
 from django.core.management import call_command
 from django.test import TestCase, tag
@@ -13,11 +11,10 @@ from .helpers import choose_team_sizes, choose_team_levels,\
                      distribute_participants_to_teams, get_users_from_ids,\
                      create_new_team_and_add_participants,\
                      create_teams_in_view
-from .github import GITHUB_EVENTS, get_repo_events, get_pagination, create_activity_record, \
-                    get_push_additions_and_deletions, \
-                    compile_repo_activity_by_user, create_spider_chart_data, \
-                    create_activity_spider_chart, \
-                    extract_owner_and_repo_from_url
+from .github import GITHUB_EVENTS, get_repo_events, get_pagination, \
+                    create_spider_chart_data, create_activity_spider_chart, \
+                    extract_owner_and_repo_from_url, aggregate_repo_events, \
+                    aggregate_contributor_stats, combine_stats_and_events
 
 
 @tag('unit')
@@ -56,8 +53,8 @@ class TeamsHelpersTestCase(TestCase):
         participants, team_progression_level = group_participants(
             self.participants, num_teams)
         a = []
-        for l in participants.values():
-            for p in l:
+        for level in participants.values():
+            for p in level:
                 a.append(p['level'])
 
         self.assertTrue(isinstance(participants, dict))
@@ -71,7 +68,8 @@ class TeamsHelpersTestCase(TestCase):
         combinations = find_group_combinations(group_levels, team_size,
                                                team_level, missing)
         self.assertEqual(combinations, [[1, 3], [1, 4], [2, 2], [2, 3], [2, 4],
-                                        [1, 3], [2, 3], [3, 3], [1, 4], [2, 4]])
+                                        [1, 3], [2, 3], [3, 3], [1, 4],
+                                        [2, 4]])
 
     def test_find_all_combinations(self):
         teamsize = 3
@@ -83,8 +81,10 @@ class TeamsHelpersTestCase(TestCase):
     def test_distribute_participants_to_teams(self):
         teamsize = 3
         team_sizes = sorted(choose_team_sizes(self.participants, teamsize))
-        grouped_participants, hackathon_level = group_participants(self.participants, len(team_sizes))
-        team_levels = sorted(choose_team_levels(len(team_sizes), hackathon_level))
+        grouped_participants, hackathon_level = group_participants(
+            self.participants, len(team_sizes))
+        team_levels = sorted(choose_team_levels(len(team_sizes),
+                             hackathon_level))
         combos_without_dupes = find_all_combinations(
             self.participants, team_sizes)
         teams, leftover_participants = distribute_participants_to_teams(
@@ -181,67 +181,64 @@ class GitHubIndicatorTestCase(TestCase):
         self.assertTrue(len(repo_events) > 150)
 
     def test_get_pagination(self):
-        header_links = "<https://api.github.com/repositories/377992671/events?page=1&per_page=100>; rel='prev', <https://api.github.com/repositories/377992671/events?page=3&per_page=100>; rel='next', <https://api.github.com/repositories/377992671/events?page=3&per_page=100>; rel='last', <https://api.github.com/repositories/377992671/events?page=1&per_page=100>; rel='first'"
+        header_links = "<https://api.github.com/repositories/377992671/events?page=1&per_page=100>; rel='prev', <https://api.github.com/repositories/377992671/events?page=3&per_page=100>; rel='next', <https://api.github.com/repositories/377992671/events?page=3&per_page=100>; rel='last', <https://api.github.com/repositories/377992671/events?page=1&per_page=100>; rel='first'"  # noqa: E501
         expected = {
-            'prev': 'https://api.github.com/repositories/377992671/events?page=1&per_page=100',
-            'next': 'https://api.github.com/repositories/377992671/events?page=3&per_page=100',
-            'last': 'https://api.github.com/repositories/377992671/events?page=3&per_page=100',
-            'first': 'https://api.github.com/repositories/377992671/events?page=1&per_page=100',
+            'prev': 'https://api.github.com/repositories/377992671/events?page=1&per_page=100',  # noqa: E501
+            'next': 'https://api.github.com/repositories/377992671/events?page=3&per_page=100',  # noqa: E501
+            'last': 'https://api.github.com/repositories/377992671/events?page=3&per_page=100',  # noqa: E501
+            'first': 'https://api.github.com/repositories/377992671/events?page=1&per_page=100',  # noqa: E501
         }
         pagination = get_pagination(header_links)
         self.assertEqual(pagination, expected)
 
-    def test_create_activity_record(self):
-        with open('teams/test_data/github_events.json') as f:
-            github_events = json.load(f)
-
-        expected = ['type', 'actor', 'commits', 'additions', 'deletions']
-        activity_record = create_activity_record(github_events[0])
-        self.assertEqual(list(activity_record.keys()), expected)
-
-    def test_get_push_additions_and_deletions(self):
-        with open('teams/test_data/push_event.json') as f:
-            push_event = json.load(f)
-
-        commits = push_event.get('payload', {}).get('commits', {})
-        additions_deletions = get_push_additions_and_deletions(commits)
-        self.assertEqual(additions_deletions, (147, 13))
-
-    def test_compile_repo_activity_by_user(self):
+    def test_aggregate_repo_events(self):
         owner = 'Code-Institute-Community'
         repo = 'ci-hackathon-app'
-        repo_activity = compile_repo_activity_by_user(owner, repo)
-        with open('teams/repo_activity.json', 'w+') as f:
-            json.dump(repo_activity, f, indent=4, default=str)
-        self.assertTrue(repo_activity)
+        aggregated_repo_events, default_events = aggregate_repo_events(
+            owner, repo)
+        self.assertTrue(all('events' in values
+                            for values in aggregated_repo_events.values()))
+
+    def test_aggregate_contributor_stats(self):
+        owner = 'Code-Institute-Community'
+        repo = 'ci-hackathon-app'
+        contributor_stats = aggregate_contributor_stats(owner, repo)
+        self.assertTrue(all('stats' in values
+                            for values in contributor_stats.values()))
+
+    def test_combine_stats_and_events(self):
+        owner = 'Code-Institute-Community'
+        repo = 'ci-hackathon-app'
+        combined_stats = combine_stats_and_events(owner, repo)
+        self.assertTrue(all('stats' in values and 'events' in values
+                            for values in combined_stats.values()))
 
     def test_create_spider_chart_data(self):
-        with open('teams/test_data/repo_activity.json') as f:
+        with open('teams/test_data/combined_stats.json') as f:
             repo_activity = json.load(f)
 
         expected = [
             {
-                'label': 'stefdworschak',
-                'data': [0, 10, 0, 0, 0, 9, 13, 0, 0, 14, 15, 13, 13, 10, 0, 0],  # noqa: E501
-                'categories': GITHUB_EVENTS,
-            }, {
-                'label': 'TravelTimN',
-                'data': [0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 9, 18, 0, 0, 0, 0],
-                'categories': GITHUB_EVENTS,
-            }, {
-                'label': 'JimLynx',
-                'data': [0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 2, 1, 1, 1, 0, 0],
-                'categories': GITHUB_EVENTS,
-            }, {
-                'label': 'dependabot[bot]',
-                'data': [0, 5, 4, 0, 0, 2, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0],
-                'categories': GITHUB_EVENTS,
-            }]
+                "label": "user1",
+                "data": [0, 10, 0, 0, 0, 9, 13, 0, 0, 14, 15, 13, 13, 10, 0, 0],  # noqa: E501
+                "categories": GITHUB_EVENTS,
+            },
+            {
+                "label": "user2",
+                "data": [0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 9, 18, 0, 0, 0, 0],
+                "categories": GITHUB_EVENTS,
+            },
+            {
+                "label": "user3",
+                "data": [5, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 1, 0, 0, 0],
+                "categories": GITHUB_EVENTS,
+            }
+        ]
         spider_chart_data = create_spider_chart_data(repo_activity)
         self.assertEqual(spider_chart_data, expected)
 
     def create_activity_spider_chart(self):
-        with open('teams/test_data/repo_activity.json') as f:
+        with open('teams/test_data/combined_stats.json') as f:
             repo_activity = json.load(f)
 
         spider_chart_data = create_spider_chart_data(repo_activity)

@@ -713,6 +713,11 @@ img.showcase-image-edit {
     max-width: none;
 }
 
+/* GitHub Team Stats */
+.modebar-container {
+    display: none;
+}
+
 /* Hackathon Stats */
 .hide-row{
     display:none;

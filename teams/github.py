@@ -1,8 +1,10 @@
+from copy import deepcopy
 import re
 import requests
 
 from django.conf import settings
 import plotly.graph_objects as go
+import pandas as pd
 
 GITHUB_EVENTS = [
     'CommitCommentEvent', 'CreateEvent', 'DeleteEvent', 'ForkEvent',
@@ -11,6 +13,25 @@ GITHUB_EVENTS = [
     'PullRequestReviewCommentEvent', 'PushEvent', 'ReleaseEvent',
     'SponsorshipEvent', 'WatchEvent',
     ]
+
+GITHUB_EVENTS_DEFAULT = {
+    'CommitCommentEvent': 0,
+    'CreateEvent': 0,
+    'DeleteEvent': 0,
+    'ForkEvent': 0,
+    'GollumEvent': 0,
+    'IssueCommentEvent': 0,
+    'IssuesEvent': 0,
+    'MemberEvent': 0,
+    'PublicEvent': 0,
+    'PullRequestEvent': 0,
+    'PullRequestReviewEvent': 0,
+    'PullRequestReviewCommentEvent': 0,
+    'PushEvent': 0,
+    'ReleaseEvent': 0,
+    'SponsorshipEvent': 0,
+    'WatchEvent': 0,
+}
 
 MODEBAR_REMOVE = [
     "autoScale2d", "autoscale", "editInChartStudio", "editinchartstudio",
@@ -29,14 +50,15 @@ MODEBAR_REMOVE = [
 GITHUB_DEFAULT_MAIN_BRANCHES = ["refs/heads/master", "refs/heads/main"]
 
 
-def get_repo_events(owner, repo):
+def get_repo_events(owner, repo, endpoint='events'):
     """ Retrieves all events from a public GitHub repo
 
     This endpoint can only retrieve events from the last 90 days
 
     Returns the collated list of all paginated results """
     data = []
-    url = f'https://api.github.com/repos/{owner}/{repo}/events?per_page=100'
+    url = (f'https://api.github.com/repos/{owner}/{repo}/{endpoint}'
+           f'?per_page=100')
     headers = {'Authorization': f'token {settings.GITHUB_TOKEN}'}
     pagination = {
         'next': url,
@@ -77,91 +99,64 @@ def get_pagination(header_links):
     return pagination
 
 
-def create_activity_record(event):
-    """ Creates an aggregate of one event including retrieving information
-    from the commits from the GitHub API """
-    activity_record = {}
-    event_type = event.get('type')
-    activity_record['type'] = event_type
-    activity_record['user'] = event['actor']['login']
-    if event_type == 'PullRequestEvent':
-        pull_request = event.get('payload', {}).get('pull_request', {})
-        activity_record['commits'] = pull_request.get('commits', 0)
-        activity_record['additions'] = pull_request.get('additions', 0)
-        activity_record['deletions'] = pull_request.get('deletions', 0)
-    elif event_type == 'PushEvent':
-        commits = event.get('payload', {}).get('commits', {})
-        ref = event.get('payload', {}).get('ref')
-        activity_record['commits'] = len(commits)
-        # TODO: Tranverse through commits to get additions and deletions
-        if ref in GITHUB_DEFAULT_MAIN_BRANCHES:
-            additions, deletions = get_push_additions_and_deletions(commits)
-        else:
-            additions, deletions = 0, 0
-        activity_record['additions'] = additions
-        activity_record['deletions'] = deletions
-    else:
-        activity_record['commits'] = 0
-        activity_record['additions'] = 0
-        activity_record['deletions'] = 0
-
-    return activity_record
-
-
-def get_push_additions_and_deletions(commits):
-    """ Retrieves all additions and deletions from a commit from the GitHub
-    API endpoint """
-    additions = 0
-    deletions = 0
-    commit_details = []
-    for commit in commits:
-        url = commit.get('url')
-        if url:
-            commit_details.append(get_commit_details(url))
-
-    additions = sum([commit.get('stats', {}).get('additions', 0)
-                     for commit in commit_details])
-    deletions = sum([commit.get('stats', {}).get('deletions', 0)
-                     for commit in commit_details])
-
-    return additions, deletions
-
-
-def compile_repo_activity_by_user(owner, repo):
-    """ Compiles all activity for each user working on a repo """
+def aggregate_repo_events(owner, repo):
+    """ Aggregates the repo events based on the contributor """
+    aggregated_events = {}
     repo_events = get_repo_events(owner, repo)
-    repo_activity_records = [create_activity_record(event)
-                             for event in repo_events]
-    repo_activity = {}
-    for record in repo_activity_records:
-        user = record.get('user')
-        event_type = record.get('type')
-        repo_activity.setdefault(user, {
-            'events': {},
-            'commits': 0,
-            'additions': 0,
-            'deletions': 0,
-        })
-        repo_activity[user]['events'].setdefault(event_type, 0)
-        repo_activity[user]['events'][event_type] += 1
-        repo_activity[user]['commits'] += record.get('commits', 0)
-        repo_activity[user]['additions'] += record.get('additions', 0)
-        repo_activity[user]['deletions'] += record.get('deletions', 0)
-
-    return repo_activity
+    unique_repo_events = list(set(event.get('type') for event in repo_events))
+    default_events = {k: v for k, v in GITHUB_EVENTS_DEFAULT.items()
+                      if k in unique_repo_events}
+    for event in repo_events:
+        user = event.get('actor', {}).get('login')
+        event_type = event.get('type')
+        aggregated_events.setdefault(user, {})
+        aggregated_events[user].setdefault('events',
+                                           deepcopy(default_events))
+        aggregated_events[user]['events'][event_type] += 1
+    return aggregated_events, default_events
 
 
-def create_spider_chart_data(repo_activity):
+def aggregate_contributor_stats(owner, repo):
+    """ Aggregates the repo contributor stats based on the contributor """
+    aggregated_contributor_stats = {}
+    repo_contributor_stats = get_repo_events(owner, repo,
+                                             endpoint='stats/contributors')
+    for contributor in repo_contributor_stats:
+        user = contributor.get('author', {}).get('login')
+        if not contributor.get('weeks'):
+            continue
+
+        df = pd.DataFrame(contributor.get('weeks'))
+        # Aggregates additions, deletions and commits over all weeks and
+        # converts df back to a dict
+        aggregated_values = df.loc[:, ['a', 'd', 'c']].sum(
+            axis=0, skipna=True).to_dict()
+        aggregated_contributor_stats.setdefault(user, {})
+        aggregated_contributor_stats[user]['stats'] = aggregated_values
+    return aggregated_contributor_stats
+
+
+def combine_stats_and_events(owner, repo):
+    """ Combines contributor stats and repo events for the contributor in
+    one dict """
+    repo_events, default_events = aggregate_repo_events(owner, repo)
+    contributor_stats = aggregate_contributor_stats(owner, repo)
+    for user, contributor in contributor_stats.items():
+        events = repo_events.get(user, {}).get('events',
+                                               deepcopy(default_events))
+        contributor_stats[user]['events'] = events
+    return contributor_stats
+
+
+def create_spider_chart_data(contributor_stats):
     """ Creates the data used for the spider charts"""
     data = []
-    for user, activity in repo_activity.items():
+    for user, stats in contributor_stats.items():
         chart_data = {}
         chart_data['label'] = user
-        chart_data['data'] = [activity['events'].get(category, 0)
-                              for category in GITHUB_EVENTS]
-        chart_data['categories'] = GITHUB_EVENTS
+        chart_data['data'] = [val for val in stats['events'].values()]
+        chart_data['categories'] = [key for key in stats['events'].keys()]
         data.append(chart_data)
-
     return data
 
 
@@ -190,8 +185,9 @@ def create_activity_spider_chart(chart_data):
         autosize=True,
         modebar=dict(remove=MODEBAR_REMOVE),
     )
+    fig.update_xaxes(automargin=True)
 
-    return fig.to_html(full_html=False, default_height=500, default_width=600)
+    return fig.to_html(full_html=False, default_height=400, default_width=550)
 
 
 def extract_owner_and_repo_from_url(url):

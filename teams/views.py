@@ -12,7 +12,7 @@ from accounts.decorators import can_access
 from accounts.models import UserType
 from hackathon.models import Hackathon, HackTeam, HackProject
 from teams.github import extract_owner_and_repo_from_url, \
-                         compile_repo_activity_by_user, \
+                         combine_stats_and_events, \
                          create_spider_chart_data, \
                          create_activity_spider_chart
 from teams.helpers import choose_team_sizes, group_participants,\
@@ -278,17 +278,26 @@ def create_group_im(request, team_id):
              UserType.PARTNER_JUDGE],
             redirect_url='hackathon:hackathon-list')
 def view_team_github_stats(request, team_id):
-    spider_chart = None
-    participant_charts =[]
+    participant_charts = []
     hack_team = get_object_or_404(HackTeam, id=team_id)
 
     if hack_team.project:
         owner, repo = extract_owner_and_repo_from_url(
             hack_team.project.github_url)
-        repo_activity = compile_repo_activity_by_user(owner, repo)
+        repo_activity = combine_stats_and_events(owner, repo)
         spider_chart_data = create_spider_chart_data(repo_activity)
-        for chart_data in spider_chart_data:
-            participant_charts.append(
-                create_activity_spider_chart([chart_data]))
+        chart_html = create_activity_spider_chart(spider_chart_data)
+        participant_charts.append({
+                'participant_name': "Team",
+                'chart_html': chart_html
+            })
+        # Decide whether you want to have one chart or separate charts per
+        # participant in team
+        # for chart_data in spider_chart_data:
+        #     chart_html = create_activity_spider_chart([chart_data])
+        #     participant_charts.append({
+        #         'participant_name': chart_data['label'],
+        #         'chart_html': chart_html
+        #     })
     return render(request, 'github_stats.html',
                   {'spider_charts': participant_charts})
