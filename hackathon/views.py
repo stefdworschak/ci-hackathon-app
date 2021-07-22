@@ -18,7 +18,7 @@ from .lists import AWARD_CATEGORIES
 from .helpers import format_date, query_scores, create_judges_scores_table
 
 from accounts.models import UserType
-from accounts.decorators import can_access
+from accounts.decorators import can_access, can_access_hackathon
 
 DEFAULT_SCORES = {
     'team_name': '',
@@ -348,6 +348,7 @@ def update_hackathon_status(request, hackathon_id):
 
 
 @login_required
+@can_access_hackathon()
 def view_hackathon(request, hackathon_id):
     """
     Login required decorator used to prevent user from navigating using URL
