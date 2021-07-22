@@ -20,18 +20,24 @@ def index(request):
     if not request.user.current_lms_module:
         messages.warning(request, 'Please fill in your profile.')
         return redirect(reverse('edit_profile'))
-    
+
     return redirect(reverse('home'))
 
 
 def home(request):
-    """ 
-    A view to return the index page and upcoming Hackathon information 
+    """
+    A view to return the index page and upcoming Hackathon information
     for any public hackathons (e.g. future and ongoing with CI as organisation)
     """
+    is_public = [True]
+    organisation = [1]
+    if request.user.is_authenticated:
+        is_public = [True, False, None]
+        organisation = [request.user.organisation.id]
+
     hackathons = Hackathon.objects.filter(
-        status__in=PUBLIC_STATUSES,
-        organisation=1).order_by('id')
+        is_public__in=is_public,
+        organisation__in=organisation).order_by('id')
     paginator = Paginator(hackathons, 2)
     page = request.GET.get('page')
     paged_hackathons = paginator.get_page(page)
