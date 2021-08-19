@@ -16,3 +16,9 @@ STATUS_TYPES_CHOICES = (
 AWARD_CATEGORIES = ['Best Project', 'Best Project (1st Runners Up)', 
                     'Best Project (2nd Runners Up)', 'Most Innovative Project',
                     'Best Commercial Application', 'Most Creative Project']
+
+VISIBILITY_CHOICES = [
+    ('public', 'Public'),
+    ('internal', 'Internal'),
+    ('organisation_only', 'Organisation Only'),
+]

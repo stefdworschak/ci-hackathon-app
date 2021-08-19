@@ -4,7 +4,7 @@ from django.forms import BaseModelFormSet
 from accounts.models import Organisation
 from .models import Hackathon, HackProject, HackAward, HackTeam, \
                     HackProjectScoreCategory, HackAwardCategory
-from .lists import STATUS_TYPES_CHOICES
+from .lists import STATUS_TYPES_CHOICES, VISIBILITY_CHOICES
 
 
 class HackathonForm(forms.ModelForm):
@@ -87,18 +87,22 @@ class HackathonForm(forms.ModelForm):
             'size': '5'
         })
     )
-    is_public = forms.BooleanField(required=False)
     max_participants = forms.IntegerField(
         label="Max Number Of Participants (leave empty for no max)",
         required=False,
         widget=forms.TextInput({'type': 'number'})
+    )
+    visibility = forms.CharField(
+        label="Visibility",
+        required=True,
+        widget=forms.Select(choices=VISIBILITY_CHOICES),
     )
 
     class Meta:
         model = Hackathon
         fields = ['display_name', 'description', 'theme', 'start_date',
                   'end_date', 'status', 'organisation', 'score_categories',
-                  'team_size', 'tag_line', 'is_public', 'max_participants',
+                  'team_size', 'tag_line', 'visibility', 'max_participants',
                   ]
 
     def __init__(self, *args, **kwargs):
@@ -132,7 +136,7 @@ class HackTeamForm(forms.ModelForm):
     class Meta:
         model = HackTeam
         fields = ['id', 'display_name', 'mentor']
-    
+
     def __init__(self, *args, **kwargs):
         hackathon_id = kwargs.pop('hackathon_id', None)
         hackathon = Hackathon.objects.filter(id=hackathon_id).first()
