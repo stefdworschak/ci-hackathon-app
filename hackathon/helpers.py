@@ -4,6 +4,9 @@ from datetime import datetime
 import pandas as pd
 import numpy as np
 
+from accounts.models import UserType
+from hackathon.models import Hackathon
+
 
 def format_date(date_str):
     """ Try parsing your dates with strptime and fallback to dateutil.parser
@@ -35,7 +38,7 @@ def query_scores(hackathon_id):
         INNER JOIN hackathon_hackproject AS projects
         ON scores.project_id = projects.id
         INNER JOIN (
-            SELECT 
+            SELECT
                 judge_id,
                 project_id,
                 COUNT(*) AS num_scores
@@ -65,10 +68,10 @@ def combine_name(name1, name2):
 
 
 def create_judges_scores_table(scores, judges, teams):
-    """ Creates a list of lists of each judges score per team, the total for 
+    """ Creates a list of lists of each judges score per team, the total for
     each team, excludes judges scores who have not scored all teams yet and
     creates a name column from team and project name
-    
+
     Returns a dict that represents the headers and results table that will be
     displayed in the template """
     default_values = [0 for i in range(len(judges))]
@@ -89,13 +92,13 @@ def create_judges_scores_table(scores, judges, teams):
     # Calculate how many projects the judges have scored and set scores for
     # judges who have not scored all projects to 0 which will exclude their
     # scores from the overall
-    scores_per_judge = dict(judges_scores_table.groupby('judge_name'
-        ).count()['team_name'])
+    scores_per_judge = dict(judges_scores_table.groupby(
+        'judge_name').count()['team_name'])
     judges_to_exclude = [judge for judge in judges
-                     if (scores_per_judge.get(judge) or 0) < len(teams)]
+                         if (scores_per_judge.get(judge) or 0) < len(teams)]
     for j in judges_to_exclude:
         scores_table[j] = 0
-    
+
     # Convert all scores to a numeric value
     for judge in judges:
         scores_table[judge] = scores_table[judge].apply(pd.to_numeric)
@@ -108,12 +111,43 @@ def create_judges_scores_table(scores, judges, teams):
     # Combine team_name and project_name in one column and drop the unneeded
     # extra columns
     scores_table.insert(
-        0, 'Team / Project Name', 
+        0, 'Team / Project Name',
         scores_table['team_name'].combine(scores_table['project_name'],
-        combine_name))
+                                          combine_name))
     scores_table.drop(columns=['team_name', 'project_name'], inplace=True)
 
     return {
         'headers': list(scores_table.columns),
         'rows': scores_table.to_records(index=False).tolist()
     }
+
+
+def get_available_hackathons_for_user(user):
+    if (not user.is_authenticated
+            or user.user_type == UserType.EXTERNAL_USER):
+        print("External / unauthenticated")
+        return Hackathon.objects.filter(visibility='public').order_by(
+            '-created').exclude(status='deleted')
+    elif (user.user_type in [UserType.SUPERUSER, UserType.STAFF,
+                             UserType.FACILITATOR_ADMIN]):
+        # return Hackathon.objects.order_by('-created').exclude(status='deleted')
+        return Hackathon.objects.order_by('-created')
+    elif user.organisation.id == 1:
+        print("User org == 1")
+        hackathons = Hackathon.objects.filter(organisation=1,
+                                              visibility='organisation_only')
+        hackathons |= Hackathon.objects.filter(
+            visibility__in=['public', 'internal'])
+        hackathons = hackathons.order_by('-created').exclude(status='deleted')
+        return hackathons
+    elif user.organisation.display_default_org:
+        print("Show default org")
+        return Hackathon.objects.filter(
+            organisation__in=set([1, user.organisation.id])).order_by(
+            '-created').exclude(status='deleted').exclude(
+                visibility='organisation_only', organisation=1)
+    else:
+        print("Show only org")
+        return Hackathon.objects.filter(
+            organisation=user.organisation.id).order_by(
+            '-created').exclude(status='deleted')

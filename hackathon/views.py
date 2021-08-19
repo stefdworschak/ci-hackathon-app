@@ -1,5 +1,6 @@
 from datetime import datetime
 import logging
+from django.core.exceptions import RequestAborted
 
 from django.db import transaction, IntegrityError
 from django.forms import modelformset_factory
@@ -15,7 +16,8 @@ from .models import Hackathon, HackTeam, HackProjectScore,\
 from .forms import HackathonForm, ChangeHackathonStatusForm,\
                    HackAwardForm, HackTeamForm
 from .lists import AWARD_CATEGORIES
-from .helpers import format_date, query_scores, create_judges_scores_table
+from .helpers import format_date, query_scores, create_judges_scores_table, \
+                     get_available_hackathons_for_user
 
 from accounts.models import UserType
 from accounts.decorators import can_access, can_access_hackathon
@@ -42,19 +44,8 @@ def list_hackathons(request):
         SUPERUSER and STAFF should see all hackathons
 
     """
-    if request.user.user_type == UserType.EXTERNAL_USER:
-        hackathons = Hackathon.objects.filter(is_public=True).order_by(
-            '-created').exclude(status='deleted')
-    elif request.user.user_type in [UserType.PARTNER_ADMIN,
-                                    UserType.PARTNER_JUDGE,
-                                    UserType.PARTNER_USER]:
-        hackathons = Hackathon.objects.filter(
-            organisation=request.user.organisation
-            ).order_by('-created').exclude(status='deleted')
-    else:
-        hackathons = Hackathon.objects.order_by('-created').exclude(
-            status='deleted')
-    paginator = Paginator(hackathons, 8)
+    hackathons = get_available_hackathons_for_user(request.user)
+    paginator = Paginator(hackathons, 5)
     page = request.GET.get('page')
     paged_hackathons = paginator.get_page(page)
 
@@ -69,6 +60,7 @@ def list_hackathons(request):
              UserType.FACILITATOR_JUDGE, UserType.PARTNER_ADMIN,
              UserType.PARTNER_JUDGE],
             redirect_url='hackathon:hackathon-list')
+@can_access_hackathon(view_type='judge')
 def judging(request, hackathon_id, team_id):
     """Displays the judging page for the judge to save their scores
     for the selected project - determined by hackathon id and team id"""
@@ -153,6 +145,7 @@ def judging(request, hackathon_id, team_id):
 @login_required
 @can_access([UserType.SUPERUSER, UserType.FACILITATOR_ADMIN,
              UserType.PARTNER_ADMIN], redirect_url='hackathon:hackathon-list')
+@can_access_hackathon(view_type='admin')
 def check_projects_scores(request, hackathon_id):
     """ When a judge submits the score, check if all projects in the Hackathon
     were scored by all the judges in all the categories by comparing the
@@ -223,6 +216,7 @@ def check_projects_scores(request, hackathon_id):
 @login_required
 @can_access([UserType.SUPERUSER, UserType.FACILITATOR_ADMIN,
              UserType.PARTNER_ADMIN], redirect_url='hackathon:hackathon-list')
+@can_access_hackathon(view_type='admin')
 def create_hackathon(request):
     """ Allow users to create hackathon event """
     if request.method == 'GET':
@@ -281,6 +275,7 @@ def create_hackathon(request):
 @login_required
 @can_access([UserType.SUPERUSER, UserType.FACILITATOR_ADMIN,
              UserType.PARTNER_ADMIN], redirect_url='hackathon:hackathon-list')
+@can_access_hackathon(view_type='admin')
 def update_hackathon(request, hackathon_id):
     """ Allow users to edit hackathon event """
     hackathon = get_object_or_404(Hackathon, pk=hackathon_id)
@@ -332,6 +327,7 @@ def update_hackathon(request, hackathon_id):
 @login_required
 @can_access([UserType.SUPERUSER, UserType.FACILITATOR_ADMIN,
              UserType.PARTNER_ADMIN], redirect_url='hackathon:hackathon-list')
+@can_access_hackathon(view_type='admin')
 def update_hackathon_status(request, hackathon_id):
     """ Allows users to updated the status of a hackathon """
     if request.method == 'POST':
@@ -382,6 +378,7 @@ def view_hackathon(request, hackathon_id):
 @login_required
 @can_access([UserType.SUPERUSER, UserType.FACILITATOR_ADMIN,
              UserType.PARTNER_ADMIN], redirect_url='hackathon:hackathon-list')
+@can_access_hackathon(view_type='admin')
 def delete_hackathon(request, hackathon_id):
     """ Allow users to 'soft delete' hackathon event - set status to 'deleted'
      to remove from frontend list """
@@ -437,6 +434,7 @@ def enroll_toggle(request):
 @login_required
 @can_access([UserType.SUPERUSER, UserType.FACILITATOR_ADMIN,
              UserType.PARTNER_ADMIN], redirect_url='hackathon:hackathon-list')
+@can_access_hackathon(view_type='admin')
 def change_awards(request, hackathon_id):
     hackathon = get_object_or_404(Hackathon, pk=hackathon_id)
     awards = hackathon.awards.all()
@@ -489,6 +487,7 @@ def change_awards(request, hackathon_id):
              UserType.FACILITATOR_JUDGE, UserType.PARTNER_ADMIN,
              UserType.PARTNER_JUDGE],
             redirect_url='hackathon:hackathon-list')
+@can_access_hackathon(view_type='judge')
 def judge_teams(request, hackathon_id):
     """ Shows the list of teams and allows a judge to go to the scoring
     page """
@@ -506,6 +505,7 @@ def judge_teams(request, hackathon_id):
 @login_required
 @can_access([UserType.SUPERUSER, UserType.FACILITATOR_ADMIN,
              UserType.PARTNER_ADMIN], redirect_url='hackathon:hackathon-list')
+@can_access_hackathon(view_type='admin')
 def assign_mentors(request, hackathon_id):
     """ View used to assign a mentor to each team """
     hackathon = get_object_or_404(Hackathon, id=hackathon_id)

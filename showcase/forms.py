@@ -11,7 +11,7 @@ class ShowcaseForm(forms.ModelForm):
         fields = ['hack_project', 'showcase_participants', 'is_public',
                   'display_name']
 
-    def __init__(self,*args,**kwargs):
+    def __init__(self, *args, **kwargs):
         team_id = kwargs.pop('team_id', None)
         team = HackTeam.objects.filter(id=team_id).first()
         # call standard __init__
@@ -22,5 +22,5 @@ class ShowcaseForm(forms.ModelForm):
                     'size': '7'
                 })
             )
-            
+
         self.fields['hack_project'].widget = forms.HiddenInput()

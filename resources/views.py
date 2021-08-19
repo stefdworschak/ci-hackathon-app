@@ -20,7 +20,7 @@ def resources(request):
 @login_required
 @can_access([UserType.SUPERUSER, UserType.STAFF, UserType.FACILITATOR_ADMIN,
              UserType.PARTNER_ADMIN],
-             redirect_url='resources')
+            redirect_url='resources')
 def add_resource(request):
     """ A view allowing admin to add a resource to the resources page """
     if request.method == 'POST':
@@ -42,7 +42,7 @@ def add_resource(request):
 @login_required
 @can_access([UserType.SUPERUSER, UserType.STAFF, UserType.FACILITATOR_ADMIN,
              UserType.PARTNER_ADMIN],
-             redirect_url='resources')
+            redirect_url='resources')
 def delete_resource(request, resource_id):
     """ A view to allow only admin to delete a resource """
     resource = get_object_or_404(Resource, pk=resource_id)
@@ -54,7 +54,7 @@ def delete_resource(request, resource_id):
 @login_required
 @can_access([UserType.SUPERUSER, UserType.STAFF, UserType.FACILITATOR_ADMIN,
              UserType.PARTNER_ADMIN],
-             redirect_url='resources')
+            redirect_url='resources')
 def edit_resource(request, resource_id):
     """ A view to allow only admin to edit a resource"""
     resource = get_object_or_404(Resource, pk=resource_id)

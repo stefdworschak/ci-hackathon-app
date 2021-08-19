@@ -11,22 +11,16 @@
     {% if hackathons %}
         <h2 class="p-orange text-center mb-4">Hackathons</h2>
         {% for hackathon in hackathons %}
-            {% with authorised_types='SUPERUSER,STAFF,FACILITATOR_ADMIN,FACILITATOR_JUDGE,PARTNER_ADMIN,PARTNER_JUDGE' %}
-            {% if hackathon.organisation.id == 1 or hackathon.organisation == user.organisation or request.user.user_type|is_types:authorised_types %}
-                {% if hackathon.status != 'draft' or request.user == hackathon.created_by %}
-                    {% if not hackathon.status == 'deleted' %}
-                        {% include 'hackathon/includes/hackathon_card.html' %}
-                    {% endif %}
-                {% endif %}
+            {% if hackathon.status != 'draft' or request.user == hackathon.created_by %}
+                {% include 'hackathon/includes/hackathon_card.html' %}
             {% endif %}
-            {% endwith %}
         {% endfor %}
     {% else %}
         <h2 class="text-center">There aren't any Hackathons at the moment!</h2>
     {% endif %}
     <!-- Pagination using Django's paginator. Options are disabled or hidden if unavailable. -->
     <nav aria-label="Hackathon Page Navigation">
-        {% include 'hackathon/includes/paginator.html' %}
+        {% include 'hackathon/includes/paginator.html' with page_obj=hackathons %}
     </nav>
 </section>
 {% endblock %}

@@ -4,12 +4,7 @@ from django.core.paginator import Paginator
 from django.conf import settings
 from django.shortcuts import render, redirect, reverse
 
-from hackathon.models import Hackathon
-
-PUBLIC_STATUSES = [
-    'published', 'registration_open', 'hack_prep', 'hack_in_progress',
-    'judging'
-]
+from hackathon.helpers import get_available_hackathons_for_user
 
 
 def index(request):
@@ -29,20 +24,14 @@ def home(request):
     A view to return the index page and upcoming Hackathon information
     for any public hackathons (e.g. future and ongoing with CI as organisation)
     """
-    is_public = [True]
-    organisation = [1]
-    if request.user.is_authenticated:
-        is_public = [True, False, None]
-        organisation = [request.user.organisation.id]
-
-    hackathons = Hackathon.objects.filter(
-        is_public__in=is_public,
-        organisation__in=organisation).order_by('id')
+    hackathons = get_available_hackathons_for_user(request.user)
     paginator = Paginator(hackathons, 2)
     page = request.GET.get('page')
     paged_hackathons = paginator.get_page(page)
 
-    return render(request, "home/index.html",  {"hackathons": paged_hackathons})
+    return render(request, "home/index.html", {
+        "hackathons": paged_hackathons
+    })
 
 
 def faq(request):

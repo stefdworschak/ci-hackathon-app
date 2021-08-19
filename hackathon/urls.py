@@ -28,7 +28,7 @@ urlpatterns = [
          name='view_hackathon'),
     path("<int:hackathon_id>/update/", update_hackathon,
          name="update_hackathon"),
-     path("<int:hackathon_id>/update_hackathon_status/", update_hackathon_status,
+    path("<int:hackathon_id>/update_hackathon_status/", update_hackathon_status,
          name="update_hackathon_status"),
     path("<int:hackathon_id>/delete/", delete_hackathon,
          name="delete_hackathon"),
