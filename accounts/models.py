@@ -26,6 +26,11 @@ class Organisation(models.Model):
         max_length=100,
         default='Code Institute'
     )
+    display_default_org = models.BooleanField(
+        default=True,
+        help_text=("If set to True all users in this organisation will see "
+                   "their own and the default organisation's (pk=1) "
+                   "hackathons."))
 
     def __str__(self):
         return self.display_name
@@ -126,7 +131,7 @@ class CustomUser(AbstractUser):
         elif self.is_staff:
             return UserType.STAFF
         elif self.organisation.id != 1:
-            # This is assuming that the first organisation entered is the 
+            # This is assuming that the first organisation entered is the
             # "host organisation"
             # TODO: Add a model or environment variable to determine which is
             # the host organisation
