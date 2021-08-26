@@ -2,7 +2,7 @@ from django.db import models
 from django.utils import timezone
 from datetime import datetime
 
-from accounts.models import CustomUser as User
+from accounts.models import CustomUser as User, UserType
 from accounts.models import Organisation
 from .lists import STATUS_TYPES_CHOICES, VISIBILITY_CHOICES
 
@@ -100,6 +100,14 @@ class Hackathon(models.Model):
             return False
 
         return self.participants.count() >= self.max_participants
+
+    def get_access_type(self, user):
+        if user.user_type == UserType.SUPERUSER or user in self.admins.all():
+            return 'admin_access'
+        elif (user.user_type == UserType.PARTNER_ADMIN
+                and self.organisation == user.organisation):
+            return 'admin_access'
+        return 'participant_access'
 
 
 class HackAwardCategory(models.Model):
