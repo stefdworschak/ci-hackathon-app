@@ -45,9 +45,12 @@ class Hackathon(models.Model):
     team_size = models.IntegerField(default=3)
     # Hackathons can have numerous judges and
     # users could be the judges of more than one Hackathon: Many to Many
-    judges = models.ManyToManyField(User,
-                                    blank=True,
-                                    related_name='judged_hackathons')
+    judges = models.ManyToManyField(
+        User, blank=True, related_name='judged_hackathons')
+    facilitators = models.ManyToManyField(
+        User, blank=True, related_name='facilitated_hackathons')
+    admins = models.ManyToManyField(
+        User, blank=True, related_name='administered_hackathons')
     # Hackathons can have multiple participants judges and
     # users could be participating in more than one Hackathon: Many to Many
     participants = models.ManyToManyField(
