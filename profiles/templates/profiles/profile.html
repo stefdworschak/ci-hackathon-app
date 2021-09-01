@@ -53,7 +53,7 @@
                 {% block edit_profile %}
                 {% endblock %}
                 </div>
-                {% with authorised_types='SUPERUSER,STAFF,FACILITATOR_ADMIN,FACILITATOR_JUDGE,PARTNER_ADMIN,PARTNER_JUDGE' %}
+                {% with authorised_types='SUPERUSER,STAFF,ADMIN,JUDGE,PARTNER_ADMIN,PARTNER_JUDGE' %}
                 {% if '/accounts/edit_profile/' != request.path %}
                 {% if is_owner or request.user.user_type|is_types:authorised_types or user.profile_is_public %}
                 <div class="user-info">

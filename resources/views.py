@@ -18,7 +18,7 @@ def resources(request):
 
 
 @login_required
-@can_access([UserType.SUPERUSER, UserType.STAFF, UserType.FACILITATOR_ADMIN,
+@can_access([UserType.SUPERUSER, UserType.STAFF, UserType.ADMIN,
              UserType.PARTNER_ADMIN],
             redirect_url='resources')
 def add_resource(request):
@@ -40,7 +40,7 @@ def add_resource(request):
 
 
 @login_required
-@can_access([UserType.SUPERUSER, UserType.STAFF, UserType.FACILITATOR_ADMIN,
+@can_access([UserType.SUPERUSER, UserType.STAFF, UserType.ADMIN,
              UserType.PARTNER_ADMIN],
             redirect_url='resources')
 def delete_resource(request, resource_id):
@@ -52,7 +52,7 @@ def delete_resource(request, resource_id):
 
 
 @login_required
-@can_access([UserType.SUPERUSER, UserType.STAFF, UserType.FACILITATOR_ADMIN,
+@can_access([UserType.SUPERUSER, UserType.STAFF, UserType.ADMIN,
              UserType.PARTNER_ADMIN],
             redirect_url='resources')
 def edit_resource(request, resource_id):

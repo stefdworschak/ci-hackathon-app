@@ -125,12 +125,10 @@ def create_judges_scores_table(scores, judges, teams):
 def get_available_hackathons_for_user(user):
     if (not user.is_authenticated
             or user.user_type == UserType.EXTERNAL_USER):
-        print("External / unauthenticated")
         return Hackathon.objects.filter(visibility='public').order_by(
             '-created').exclude(status='deleted')
     elif (user.user_type in [UserType.SUPERUSER, UserType.STAFF,
-                             UserType.FACILITATOR_ADMIN]):
-        # return Hackathon.objects.order_by('-created').exclude(status='deleted')
+                             UserType.ADMIN]):
         return Hackathon.objects.order_by('-created')
     elif user.organisation.id == 1:
         print("User org == 1")

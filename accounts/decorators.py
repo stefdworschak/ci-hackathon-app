@@ -33,45 +33,42 @@ def can_access_hackathon(view_type=None, redirect_url=None,
     def decorator(view_function):
         @wraps(view_function)
         def wrapped_view(request, *args, **kwargs):
-            print(kwargs)
             hackathon = get_object_or_404(Hackathon,
                                           id=kwargs.get('hackathon_id'))
-            is_code_institute = hackathon.organisation.id == 1
+            is_default_org = hackathon.organisation.id == 1
             is_user_org = hackathon.organisation == request.user.organisation
             display_default_org = request.user.organisation.display_default_org
             is_public = hackathon.visibility == 'public'
+            is_internal = hackathon.visibility == 'internal'
+            user_is_default_org = request.user.organisation.id == 1
             is_created_by_user = hackathon.created_by == request.user
             is_staff_admin = request.user.user_type in [
                 UserType.SUPERUSER, UserType.STAFF]
-            is_facilitator_admin = (
-                request.user.user_type == UserType.FACILITATOR_ADMIN)
-            is_facilitator_judge = (
-                request.user.user_type == UserType.FACILITATOR_JUDGE)
-            is_partner_admin = request.user.user_type == UserType.PARTNER_ADMIN
-            is_partner_judge = request.user.user_type == UserType.PARTNER_JUDGE
             is_hidden = (hackathon.status == 'deleted' or (
                 hackathon.status == 'draft' and not is_created_by_user))
 
             if (is_hidden and not is_staff_admin):
                 messages.error(request,
                                "You don't have access to this hackathon")
-                return redirect(reverse('hackathon:hackathon-list'))
-            elif (view_type == 'admin' and not (
-                (is_code_institute and (is_staff_admin or is_facilitator_admin))
-                    or (is_user_org and (is_staff_admin or is_partner_admin)))):
+                return redirect(reverse(redirect_url))
+            elif (view_type == 'admin' and
+                    not hackathon.user_has_admin_access(request.user)):
                 messages.error(request,
                                "You don't have access to this hackathon")
-                return redirect(reverse('hackathon:hackathon-list'))
-            elif (view_type == 'judge' and not (
-                    (is_code_institute and (is_staff_admin or is_facilitator_admin or is_facilitator_judge))
-                    or (is_user_org and (is_staff_admin or is_partner_admin or is_partner_judge)))):
-                print("Judge view")
+                return redirect(reverse(redirect_url))
+            elif (view_type == 'judge' and
+                    not hackathon.user_has_judge_access(request.user)):
                 messages.error(request,
                                "You don't have access to this hackathon")
-                return redirect(reverse('hackathon:hackathon-list'))
-            elif is_public or ((display_default_org and is_code_institute)
-                               or is_user_org) or is_created_by_user:
-                print("has access")
+                return redirect(reverse(redirect_url))
+            elif (view_type == 'facilitator' and
+                    not hackathon.user_has_facilitator_access(request.user)):
+                messages.error(request,
+                               "You don't have access to this hackathon")
+                return redirect(reverse(redirect_url))
+            elif (is_public or ((display_default_org and is_default_org)
+                                or is_user_org) or is_created_by_user
+                    or (is_internal and user_is_default_org)):
                 return view_function(request, *args, **kwargs)
             else:
                 messages.error(request,

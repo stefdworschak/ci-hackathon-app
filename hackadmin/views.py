@@ -11,7 +11,7 @@ from hackathon.models import Hackathon, HackTeam
 
 
 @login_required
-@can_access([UserType.SUPERUSER, UserType.STAFF, UserType.FACILITATOR_ADMIN,
+@can_access([UserType.SUPERUSER, UserType.STAFF, UserType.ADMIN,
              UserType.PARTNER_ADMIN],
             redirect_url='hackathon:hackathon-list')
 def hackadmin_panel(request):
@@ -27,7 +27,7 @@ def hackadmin_panel(request):
 
 
 @login_required
-@can_access([UserType.SUPERUSER, UserType.STAFF, UserType.FACILITATOR_ADMIN,
+@can_access([UserType.SUPERUSER, UserType.STAFF, UserType.ADMIN,
              UserType.PARTNER_ADMIN],
             redirect_url='hackathon:hackathon-list')
 def hackathon_participants(request, hackathon_id):
@@ -51,7 +51,7 @@ def hackathon_participants(request, hackathon_id):
 
 
 @login_required
-@can_access([UserType.SUPERUSER, UserType.STAFF, UserType.FACILITATOR_ADMIN,
+@can_access([UserType.SUPERUSER, UserType.STAFF, UserType.ADMIN,
              UserType.PARTNER_ADMIN],
             redirect_url='hackathon:hackathon-list')
 def all_users(request):
@@ -68,7 +68,7 @@ def all_users(request):
 
 
 @login_required
-@can_access([UserType.SUPERUSER, UserType.STAFF, UserType.FACILITATOR_ADMIN,
+@can_access([UserType.SUPERUSER, UserType.STAFF, UserType.ADMIN,
              UserType.PARTNER_ADMIN],
             redirect_url='hackathon:hackathon-list')
 def remove_participant(request, hackathon_id):
@@ -97,7 +97,7 @@ def remove_participant(request, hackathon_id):
 
 
 @login_required
-@can_access([UserType.SUPERUSER, UserType.STAFF, UserType.FACILITATOR_ADMIN,
+@can_access([UserType.SUPERUSER, UserType.STAFF, UserType.ADMIN,
              UserType.PARTNER_ADMIN],
             redirect_url='hackathon:hackathon-list')
 def add_participant(request, hackathon_id):
@@ -115,7 +115,7 @@ def add_participant(request, hackathon_id):
 
 
 @login_required
-@can_access([UserType.SUPERUSER, UserType.STAFF, UserType.FACILITATOR_ADMIN,
+@can_access([UserType.SUPERUSER, UserType.STAFF, UserType.ADMIN,
              UserType.PARTNER_ADMIN],
             redirect_url='hackathon:hackathon-list')
 def add_judge(request):
@@ -126,8 +126,8 @@ def add_judge(request):
             CustomUser, id=request.POST.get('judge_id'))
         if judge.user_type in [
                 UserType.SUPERUSER, UserType.STAFF,
-                UserType.FACILITATOR_ADMIN, UserType.PARTNER_ADMIN,
-                UserType.FACILITATOR_JUDGE, UserType.PARTNER_JUDGE]:
+                UserType.ADMIN, UserType.PARTNER_ADMIN,
+                UserType.JUDGE, UserType.PARTNER_JUDGE]:
             hackathon.judges.add(judge)
             messages.success(request, ('User successfully added as judge to '
                                        'selected hackathon.'))

@@ -104,13 +104,77 @@ class Hackathon(models.Model):
 
         return self.participants.count() >= self.max_participants
 
-    def get_access_type(self, user):
-        if user.user_type == UserType.SUPERUSER or user in self.admins.all():
+    def access_type_for_user(self, user):
+        """ Checks the access type a specifc user has for the hackathon """
+        if user.user_type == UserType.SUPERUSER:
+            return 'superuser_access'
+        elif user in self.admins.all():
             return 'admin_access'
         elif (user.user_type == UserType.PARTNER_ADMIN
                 and self.organisation == user.organisation):
             return 'admin_access'
+        elif (user.user_type == UserType.ADMIN
+                and self.organisation.id == 1):
+            return 'admin_access'
+        elif user.user_type == UserType.STAFF:
+            return 'staff_access'
+        elif user in self.judges.all() and user in self.facilitators.all():
+            return 'judge_facilitator_access'
+        elif (user.user_type == UserType.PARTNER_JUDGE
+                and self.organisation == user.organisation):
+            return 'judge_facilitator_access'
+        elif (user.user_type == UserType.JUDGE
+                and self.organisation.id == 1):
+            return 'judge_facilitator_access'
+        elif user in self.judges.all():
+            return 'judge_access'
+        elif (user.user_type == UserType.PARTNER_JUDGE
+                and self.organisation == user.organisation):
+            return 'judge_access'
+        elif (user.user_type == UserType.JUDGE
+                and self.organisation.id == 1):
+            return 'judge_access'
+        elif (user.user_type == UserType.PARTNER_FACILITATOR
+                and self.organisation == user.organisation):
+            return 'faciliator_access'
+        elif (user.user_type == UserType.FACILITATOR
+                and self.organisation.id == 1):
+            return 'faciliator_access'
+        elif user.user_type == UserType.EXTERNAL_USER:
+            return 'external_access'
         return 'participant_access'
+
+    def user_has_admin_access(self, user):
+        """ Checks if a specifc user has admin access for the hackathon """
+        if user.user_type in [UserType.SUPERUSER, UserType.STAFF]:
+            return True
+        return self.access_type_for_user(user) == 'admin_access'
+
+    def user_has_judge_facilitator_access(self, user):
+        """ Checks if a specifc user has admin access for the hackathon """
+        if user.user_type in [UserType.SUPERUSER, UserType.STAFF]:
+            return True
+
+        return (self.access_type_for_user(user) == 'judge_facilitator_access'
+                or self.access_type_for_user(user) == 'admin_access')
+
+    def user_has_judge_access(self, user):
+        """ Checks if a specifc user has admin access for the hackathon """
+        if user.user_type in [UserType.SUPERUSER, UserType.STAFF]:
+            return True
+
+        return (self.access_type_for_user(user) == 'judge_access' or
+                self.access_type_for_user(user) == 'judge_facilitator_access'
+                or self.access_type_for_user(user) == 'admin_access')
+
+    def user_has_faciliator_access(self, user):
+        """ Checks if a specifc user has admin access for the hackathon """
+        if user.user_type in [UserType.SUPERUSER, UserType.STAFF]:
+            return True
+
+        return (self.access_type_for_user(user) == 'faciliator_access' or
+                self.access_type_for_user(user) == 'judge_facilitator_access'
+                or self.access_type_for_user(user) == 'admin_access')
 
 
 class HackAwardCategory(models.Model):
@@ -211,7 +275,7 @@ class HackTeam(models.Model):
 
     def __str__(self):
         return self.display_name
-    
+
     class Meta:
         verbose_name = "Hack Team"
         verbose_name_plural = "Hack Teams"

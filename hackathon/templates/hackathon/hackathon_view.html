@@ -11,7 +11,7 @@
             <div class="container">
                 <div class="row">
                     <div class="col p-0">
-                        {% with authorised_types='FACILITATOR_ADMIN,PARTNER_ADMIN' %}
+                        {% with authorised_types='ADMIN,PARTNER_ADMIN' %}
                         {% if hackathon.hackathon_image %}
                         <img class="hackathon-detail-image" 
                             src="{{ hackathon.hackathon_image }}" />
@@ -36,7 +36,7 @@
                     </div>
                 </div>
 
-    {% with authorised_types='SUPERUSER,STAFF,FACILITATOR_ADMIN,FACILITATOR_JUDGE,PARTNER_ADMIN,PARTNER_JUDGE' %}
+    {% with authorised_types='SUPERUSER,STAFF,ADMIN,JUDGE,PARTNER_ADMIN,PARTNER_JUDGE' %}
 
                 <div class="row">
                     <div class="col p-0">
@@ -46,7 +46,7 @@
                               Admin Actions
                             </button>
                             <div id="judge-dropdown" class="dropdown-menu judge-dropdown" aria-labelledby="dropdownMenuButton">
-                                {% with superuser_types='SUPERUSER,FACILITATOR_ADMIN,PARTNER_ADMIN' %}
+                                {% with superuser_types='SUPERUSER,ADMIN,PARTNER_ADMIN' %}
                                 {% if request.user.user_type|is_types:superuser_types %}
                                 <a role="button" class="dropdown-item" href="/hackathon/{{hackathon.id}}/update">
                                     <i class="fas fa-pen mr-2"></i>Edit Hackathon

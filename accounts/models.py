@@ -10,14 +10,17 @@ from teams.lists import LMS_LEVELS
 class UserType(Enum):
     SUPERUSER = 0
     STAFF = 1
-    FACILITATOR_ADMIN = 2
+    ADMIN = 2
     FACILITATOR_JUDGE = 3
-    FACILITATOR = 4
-    PARTICIPANT = 5
-    EXTERNAL_USER = 6
-    PARTNER_ADMIN = 7
+    JUDGE = 4
+    FACILITATOR = 5
+    PARTNER_ADMIN = 6
+    PARTNER_FACILITATOR_JUDGE = 7
     PARTNER_JUDGE = 8
-    PARTNER_USER = 9
+    PARTNER_FACILITATOR = 9
+    PARTNER_USER = 10
+    PARTICIPANT = 11
+    EXTERNAL_USER = 12
 
 
 class Organisation(models.Model):
@@ -135,10 +138,14 @@ class CustomUser(AbstractUser):
             # "host organisation"
             # TODO: Add a model or environment variable to determine which is
             # the host organisation
-            if groups.filter(name='FACILITATOR_ADMIN'):
+            if groups.filter(name='ADMIN'):
                 return UserType.PARTNER_ADMIN
             elif groups.filter(name='FACILITATOR_JUDGE'):
+                return UserType.PARTNER_FACILITATOR_JUDGE
+            elif groups.filter(name='JUDGE'):
                 return UserType.PARTNER_JUDGE
+            elif groups.filter(name='FACILITATOR'):
+                return UserType.PARTNER_FACILITATOR
             else:
                 return UserType.PARTNER_USER
         elif not groups:
@@ -146,10 +153,12 @@ class CustomUser(AbstractUser):
                 return UserType.EXTERNAL_USER
             return UserType.PARTICIPANT
         else:
-            if groups.filter(name='FACILITATOR_ADMIN'):
-                return UserType.FACILITATOR_ADMIN
+            if groups.filter(name='ADMIN'):
+                return UserType.ADMIN
             elif groups.filter(name='FACILITATOR_JUDGE'):
                 return UserType.FACILITATOR_JUDGE
+            elif groups.filter(name='JUDGE'):
+                return UserType.JUDGE
             elif groups.filter(name='FACILITATOR'):
                 return UserType.FACILITATOR
             else:

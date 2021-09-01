@@ -21,10 +21,11 @@ SLACK_GROUP_IM_ENDPOINT = 'https://slack.com/api/conversations.open/'
 
 
 @login_required
-@can_access([UserType.SUPERUSER, UserType.FACILITATOR_ADMIN,
+@can_access([UserType.SUPERUSER, UserType.ADMIN,
              UserType.PARTNER_ADMIN],
             redirect_url='hackathon:hackathon-list')
-@can_access_hackathon(view_type='admin')
+@can_access_hackathon(view_type='admin',
+                      redirect_url='hackathon:hackathon-list')
 def change_teams(request, hackathon_id):
     """ Page that handles the logic of automatically distributing the teams
     for a hackathon and allows for the admin to re-arrange the team members """
@@ -77,9 +78,11 @@ def change_teams(request, hackathon_id):
 
 
 @login_required
-@can_access([UserType.SUPERUSER, UserType.FACILITATOR_ADMIN,
+@can_access([UserType.SUPERUSER, UserType.ADMIN,
              UserType.PARTNER_ADMIN],
             redirect_url='hackathon:hackathon-list')
+@can_access_hackathon(view_type='admin',
+                      redirect_url='hackathon:hackathon-list')
 def create_teams(request):
     """ View used to save the hackathon teams created by an admin """
     if request.method == 'POST':
@@ -104,9 +107,11 @@ def create_teams(request):
 
 
 @login_required
-@can_access([UserType.SUPERUSER, UserType.FACILITATOR_ADMIN,
+@can_access([UserType.SUPERUSER, UserType.ADMIN,
              UserType.PARTNER_ADMIN],
             redirect_url='hackathon:hackathon-list')
+@can_access_hackathon(view_type='admin',
+                      redirect_url='hackathon:hackathon-list')
 def clear_teams(request):
     """ Reset all teams for a specific hackathon """
     if request.method == 'POST':

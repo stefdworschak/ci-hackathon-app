@@ -15,7 +15,7 @@
       
             </div>
             <div class="col-md-12 col-lg-9">
-                {% with authorised_types_on_card='SUPERUSER,STAFF,FACILITATOR_ADMIN,PARTNER_ADMIN' %}
+                {% with authorised_types_on_card='SUPERUSER,STAFF,ADMIN,PARTNER_ADMIN' %}
                 <h5 class="p-orange card-title"><a href="/hackathon/{{hackathon.id}}/" class="ci-link">{{ hackathon.display_name }}</a>
                     {% if request.user.user_type|is_types:authorised_types_on_card %}
                     <span class="badge badge-secondary ml-2">{{hackathon.status}}</span>
@@ -67,7 +67,7 @@
                 {% endif %}
                 {% endwith %}
                 
-                {% with authorised_types_on_card='SUPERUSER,FACILITATOR_ADMIN,PARTNER_ADMIN' %}
+                {% with authorised_types_on_card='SUPERUSER,ADMIN,PARTNER_ADMIN' %}
                 <!-- Edit and Delete buttons, only visible for admin users -->
                 {% if request.user.is_authenticated and request.user.user_type|is_type:authorised_types_on_card %}
                 <!-- Warn user if hackathon is ongoing or ended before loading edit form - trigger edit modal -->
